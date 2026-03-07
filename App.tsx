@@ -148,31 +148,32 @@ export const TextReveal: React.FC<{ text: string; className?: string; delay?: nu
   );
 };
 
-const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+const Preloader: React.FC<{ onComplete: () => void; theme: 'dark' | 'light' }> = ({ onComplete, theme }) => {
   return (
     <motion.div
       initial={{ y: 0 }}
       exit={{ y: "-100%", transition: { duration: 0.8, ease: [0.83, 0, 0.17, 1] } }}
-      className="fixed inset-0 z-[100] dark:bg-noir-black bg-slate-50 flex items-center justify-center"
+      className={`fixed inset-0 z-[100] ${theme === 'dark' ? 'bg-black' : 'bg-white'} flex items-center justify-center`}
     >
-      <div className="overflow-hidden">
+      {/* Increased wrapper size to prevent clipping during rotation */}
+      <div className="w-40 h-40 flex items-center justify-center">
         <motion.div
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          onAnimationComplete={() => setTimeout(onComplete, 1200)}
+          onAnimationComplete={() => setTimeout(onComplete, 100)}
           className="flex flex-col items-center gap-6"
         >
            <motion.div 
-             animate={{ rotate: 360 }}
-             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-             className="w-20 h-20 rounded bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-heading font-black text-4xl shadow-[0_0_50px_rgba(242,158,13,0.4)]"
+             animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+             // Box background orange, circle in middle white, sharp edges
+             className="w-24 h-24 bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(242,158,13,0.3)] rounded-lg"
             >
-              O
+              <div className="w-12 h-12 rounded-full bg-white"></div>
             </motion.div>
            <div className="flex flex-col items-center">
-             <span className="dark:text-white text-slate-900 font-heading font-bold text-3xl tracking-[0.3em] uppercase">Orient</span>
-             <span className="text-primary font-serif italic text-xl tracking-widest">Global</span>
+             <span className={`${theme === 'dark' ? 'text-white' : 'text-slate-900'} font-heading font-bold text-3xl tracking-[0.2em] uppercase`}>Orient Global</span>
            </div>
         </motion.div>
       </div>
@@ -192,7 +193,7 @@ const ParallaxImage: React.FC<{ src: string; alt: string; className?: string }> 
   const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"]);
 
   return (
-    <div ref={ref} className={`relative overflow-hidden border-2 border-blue-500 ${className}`}>
+    <div ref={ref} className={`relative overflow-hidden ${className}`}>
       <motion.div style={{ y }} className="absolute inset-0 w-full h-[125%] -top-[12.5%]">
         <img
             src={src}
@@ -686,7 +687,7 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 
 const MarketDeepDive: React.FC = () => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen cinematic-section">
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
       <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="flex flex-col">
           <Reveal animation='slide-from-right' delay="delay-100">
@@ -723,7 +724,7 @@ const MarketDeepDive: React.FC = () => {
 
 const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
-    <section id="restaurant" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen cinematic-section">
+    <section id="restaurant" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
       <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal delay="delay-100">
@@ -1800,236 +1801,86 @@ const App: React.FC = () => {
   const lastScrollY = React.useRef(0);
 
   useEffect(() => {
-    // Native scroll handling
     const container = document.getElementById('main-scroll-container');
     if (!container) return;
 
-    // Initialize Lenis on the specific container
+    // Initialize Lenis
     const isMobile = window.innerWidth < 1024;
     const lenis = new Lenis({
       wrapper: container,
       content: container.firstElementChild as HTMLElement,
-      duration: isMobile ? 1.2 : 2.0, // Standard duration for mobile, cinematic for desktop
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
-      smoothWheel: !isMobile, // Enable smooth wheel on mobile (standard), disable on desktop (custom)
-      touchMultiplier: isMobile ? 2 : 0, // Enable touch on mobile, disable on desktop (custom)
+      smoothWheel: true,
+      touchMultiplier: 2,
     });
 
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
-
     requestAnimationFrame(raf);
 
-    // Custom "Cinematic" Scroll Logic (Desktop Only)
     let isAnimating = false;
-    let snapEnabled = true;
     let snapTimeout: ReturnType<typeof setTimeout> | null = null;
-    
-    const handleWheel = (e: WheelEvent) => {
-      if (isMobile) return; // Allow native scrolling on mobile
 
-      // If the scroll velocity is high, disable snapping
-      if (Math.abs(e.deltaY) > 50) {
-        snapEnabled = false;
-        if (snapTimeout) clearTimeout(snapTimeout);
-        // Re-enable snap after 300ms of inactivity
-        snapTimeout = setTimeout(() => {
-          snapEnabled = true;
-        }, 300);
-        return;
-      }
-      
-      // If snap is disabled, allow native scroll
-      if (!snapEnabled || isAnimating) return;
-
-      const sections = Array.from(document.querySelectorAll('.cinematic-section'));
-      if (!sections.length) return;
-
-      // Find the section closest to the center of the viewport
-      const viewportCenter = window.innerHeight / 2;
-      let closestSection = sections[0];
-      let minDistance = Infinity;
-
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        const sectionCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(sectionCenter - viewportCenter);
-        
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestSection = section;
-        }
-      });
-
-      // Determine which section to snap to based on scroll direction
-      const currentIndex = sections.indexOf(closestSection);
-      const direction = e.deltaY > 0 ? 1 : -1;
-      
-      // Apply directional bias: if scrolling down, we favor the next section
-      let targetIndex = currentIndex;
-      if (direction > 0 && currentIndex < sections.length - 1) {
-        targetIndex = currentIndex + 1;
-      } else if (direction < 0 && currentIndex > 0) {
-        targetIndex = currentIndex - 1;
-      } else {
-        targetIndex = currentIndex;
-      }
-      
-      const targetSection = sections[targetIndex] as HTMLElement;
-
-      if (targetSection) {
-        e.preventDefault(); // Prevent the native small scroll since we are snapping
-        isAnimating = true;
-        
-        // Custom easing with a subtle overshoot (backOut)
-        const backOut = (t: number) => {
-          const s = 1.70158;
-          return --t * t * ((s + 1) * t + s) + 1;
-        };
-
-        // Dynamic duration based on distance
-        const rect = targetSection.getBoundingClientRect();
-        const distance = Math.abs(rect.top);
-        const duration = Math.min(Math.max(distance / 1000, 0.5), 1.5);
-
-        lenis.scrollTo(targetSection, {
-          duration: duration,
-          easing: backOut,
-          onComplete: () => {
-            isAnimating = false;
-          }
-        });
-      }
-    };
-
-    // Touch handling for mobile "swipe" to scroll (Desktop/Tablet only if needed, but mostly disabled for mobile native scroll)
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
+    const handleLenisScroll = (e: any) => {
       if (isMobile) return;
-      touchStartY = e.touches[0].clientY;
-    };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (isMobile) return;
-      e.preventDefault(); // Prevent native scroll on desktop
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (isMobile) return;
-      if (isAnimating) return;
-      
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchStartY - touchEndY;
-      
-      if (Math.abs(deltaY) < 50) return; // Ignore small taps
-      
-      const sections = Array.from(document.querySelectorAll('.cinematic-section'));
-      if (!sections.length) return;
-
-      const viewportCenter = window.innerHeight / 2;
-      let closestSection = sections[0];
-      let minDistance = Infinity;
-
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        const sectionCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(sectionCenter - viewportCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestSection = section;
-        }
-      });
-
-      const currentIndex = sections.indexOf(closestSection);
-      const direction = deltaY > 0 ? 1 : -1; // Swipe up = scroll down
-      const nextIndex = Math.min(Math.max(currentIndex + direction, 0), sections.length - 1);
-      const targetSection = sections[nextIndex];
-
-      if (targetSection) {
-        isAnimating = true;
-        lenis.scrollTo(targetSection as HTMLElement, {
-          duration: 2.0,
-          lock: true,
-          onComplete: () => {
-            isAnimating = false;
-          },
-        });
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isMobile) return;
-      if (isAnimating) return;
-      
-      const sections = Array.from(document.querySelectorAll('.cinematic-section'));
-      if (!sections.length) return;
-
-      let direction = 0;
-      if (e.key === 'ArrowDown' || e.key === ' ') {
-        direction = 1;
-      } else if (e.key === 'ArrowUp') {
-        direction = -1;
-      }
-
-      if (direction !== 0) {
-        e.preventDefault();
-        
-        const viewportCenter = window.innerHeight / 2;
-        let closestSection = sections[0];
-        let minDistance = Infinity;
-
-        sections.forEach((section) => {
-          const rect = section.getBoundingClientRect();
-          const sectionCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(sectionCenter - viewportCenter);
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestSection = section;
-          }
-        });
-
-        const currentIndex = sections.indexOf(closestSection);
-        const nextIndex = Math.min(Math.max(currentIndex + direction, 0), sections.length - 1);
-        const targetSection = sections[nextIndex];
-
-        if (targetSection) {
-          isAnimating = true;
-          lenis.scrollTo(targetSection as HTMLElement, {
-            duration: 2.0,
-            lock: true,
-            onComplete: () => {
-              isAnimating = false;
-            },
-          });
-        }
-      }
-    };
-
-    if (!isMobile) {
-        container.addEventListener('wheel', handleWheel, { passive: false });
-        container.addEventListener('touchstart', handleTouchStart, { passive: false });
-        container.addEventListener('touchmove', handleTouchMove, { passive: false });
-        container.addEventListener('touchend', handleTouchEnd, { passive: false });
-        window.addEventListener('keydown', handleKeyDown);
-    }
-
-    const handleScroll = () => {
-      // Use lenis.scroll or container.scrollTop depending on what drives the value
-      // Since Lenis is scrolling the container, container.scrollTop should be valid
-      const currentScrollY = container.scrollTop;
+      const currentScrollY = e.scroll;
       setScrolled(currentScrollY > 50);
       
+      const velocity = Math.abs(e.velocity);
+
+      // Clear pending snap if we are actively scrolling
+      if (snapTimeout) clearTimeout(snapTimeout);
+
+      if (!isAnimating) {
+        // If velocity drops below a low threshold, momentum is dying down.
+        // We set a short timeout to snap to the nearest section.
+        if (velocity < 5) {
+          snapTimeout = setTimeout(() => {
+            if (isAnimating) return;
+            const sections = Array.from(document.querySelectorAll('.cinematic-section')) as HTMLElement[];
+            if (!sections.length) return;
+
+            const viewportCenter = window.innerHeight / 2;
+            let closestSection = sections[0];
+            let minDistance = Infinity;
+
+            sections.forEach((section) => {
+              const rect = section.getBoundingClientRect();
+              const sectionCenter = rect.top + rect.height / 2;
+              const distance = Math.abs(sectionCenter - viewportCenter);
+              if (distance < minDistance) {
+                minDistance = distance;
+                closestSection = section;
+              }
+            });
+
+            // Only snap if we're more than 70px away from perfect alignment (as requested)
+            const rect = closestSection.getBoundingClientRect();
+            if (Math.abs(rect.top) > 70) {
+              isAnimating = true;
+              lenis.scrollTo(closestSection, {
+                duration: 1.0,
+                easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t, // easeInOutQuad
+                onComplete: () => {
+                  isAnimating = false;
+                }
+              });
+            }
+          }, 10); // Wait 10ms after velocity drops to ensure they actually stopped
+        }
+      }
+
+      // Navbar hide/show logic based on scroll direction
       const diff = currentScrollY - lastScrollY.current;
-      
       if (diff > 0 && currentScrollY > 10) {
-        // Instant hide on scroll down
         setNavHidden(true);
       } else if (diff < -15 && currentScrollY > 0) {
-        // Intentional show on scroll up (threshold of 15px)
         setNavHidden(false);
       } else if (currentScrollY <= 0) {
         setNavHidden(false);
@@ -2037,18 +1888,11 @@ const App: React.FC = () => {
       
       lastScrollY.current = currentScrollY;
     };
-    
-    // Lenis emits 'scroll' events too, but native listener on container is safer for UI state
-    container.addEventListener('scroll', handleScroll, { passive: true });
+
+    lenis.on('scroll', handleLenisScroll);
     
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      container.removeEventListener('wheel', handleWheel);
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('keydown', handleKeyDown);
-      if (snapTimeout) clearTimeout(snapTimeout);
+      lenis.off('scroll', handleLenisScroll);
       lenis.destroy();
     };
   }, [currentView]);
@@ -2100,7 +1944,7 @@ const App: React.FC = () => {
   return (
     <>
         <AnimatePresence>
-            {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+            {isLoading && <Preloader onComplete={() => setIsLoading(false)} theme={globalTheme} />}
         </AnimatePresence>
         <div className="bg-slate-50 dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
           <motion.div style={{ y: backgroundY }} className="absolute inset-0 z-0 h-[120%]">
