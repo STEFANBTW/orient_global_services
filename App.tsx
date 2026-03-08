@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import Lenis from 'lenis';
+// ...
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { BakeryApp, BakeryNav } from './src/BakeryComponents';
@@ -12,6 +12,7 @@ import { LoungeApp, LoungeNav, LoungePage } from './src/lounge/LoungeWrapper';
 import About from './src/components/About';
 import { AmbientGlow } from './src/components/AmbientGlow';
 import Reveal from './src/components/Reveal';
+import { ScrollReveal, RevealItem } from './src/components/ScrollReveal';
 import { SectionWrapper } from './src/components/SectionWrapper';
 import StudioApp from './src/StudioApp';
 import { ScrollContext } from './src/ScrollContext';
@@ -72,7 +73,7 @@ const ScrollItem: React.FC<{ children: React.ReactNode; className?: string; inde
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ margin: "-20% 0% -20% 0%", once: false }}
-      transition={{ duration: 0.6, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.105, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
       {children}
@@ -80,54 +81,8 @@ const ScrollItem: React.FC<{ children: React.ReactNode; className?: string; inde
   );
 };
 
-const LiquidBackground: React.FC = () => {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.1, 1],
-          rotate: [0, 5, 0],
-          x: [0, 20, 0]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-primary/20 blur-[140px]" 
-      />
-      <motion.div 
-        animate={{ 
-          scale: [1.1, 1, 1.1],
-          rotate: [0, -5, 0],
-          x: [0, -20, 0]
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-orange-600/10 blur-[120px]" 
-      />
-      
-      {/* Dynamic SVG Elements for Depth */}
-      <svg className="absolute inset-0 w-full h-full opacity-[0.1] dark:opacity-[0.2]" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-        <motion.circle 
-          cx="10%" cy="20%" r="100" fill="none" stroke="currentColor" strokeWidth="0.5"
-          animate={{ r: [100, 150, 100], opacity: [0.1, 0.3, 0.1] }}
-          transition={{ duration: 12, repeat: Infinity }}
-        />
-        <motion.path 
-          d="M0,500 Q250,400 500,500 T1000,500" fill="none" stroke="currentColor" strokeWidth="0.5"
-          animate={{ d: ["M0,500 Q250,400 500,500 T1000,500", "M0,500 Q250,600 500,500 T1000,500", "M0,500 Q250,400 500,500 T1000,500"] }}
-          transition={{ duration: 18, repeat: Infinity }}
-        />
-        <motion.rect 
-          x="80%" y="70%" width="200" height="200" fill="none" stroke="currentColor" strokeWidth="0.5"
-          animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        />
-      </svg>
-      
-      <div className="absolute inset-0 bg-noir-black/10 dark:bg-noir-black/20 backdrop-blur-[1px]" />
-    </div>
-  );
-};
-
 // Text Reveal Component for High-End Typography
-export const TextReveal: React.FC<{ text: string; className?: string; delay?: number; stagger?: number }> = ({ text, className = "", delay = 0, stagger = 0.05 }) => {
+export const TextReveal: React.FC<{ text: string; className?: string; delay?: number; stagger?: number }> = ({ text, className = "", delay = 0, stagger = 0.035 }) => {
   const words = text.split(" ");
   return (
     <span className={`inline-flex flex-wrap gap-x-[0.2em] ${className}`}>
@@ -168,12 +123,12 @@ const Preloader: React.FC<{ onComplete: () => void; theme: 'dark' | 'light' }> =
              animate={{ rotate: 360, scale: [1, 1.1, 1] }}
              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
              // Box background orange, circle in middle white, sharp edges
-             className="w-24 h-24 bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(242,158,13,0.3)] rounded-lg"
+             className="w-24 h-24 bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(242,158,13,0.3)]"
             >
-              <div className="w-12 h-12 rounded-full bg-white"></div>
+              <span className="text-white font-black text-3xl tracking-tighter">O</span>
             </motion.div>
            <div className="flex flex-col items-center">
-             <span className={`${theme === 'dark' ? 'text-white' : 'text-slate-900'} font-heading font-bold text-3xl tracking-[0.2em] uppercase`}>Orient Global</span>
+             <span className={`${theme === 'dark' ? 'text-white' : 'text-slate-900'} font-heading font-bold text-2xl tracking-[0.2em] uppercase`}>Orient Global</span>
            </div>
         </motion.div>
       </div>
@@ -190,11 +145,11 @@ const ParallaxImage: React.FC<{ src: string; alt: string; className?: string }> 
     offset: ["start end", "end start"]
   });
   
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div style={{ y }} className="absolute inset-0 w-full h-[125%] -top-[12.5%]">
+      <motion.div style={{ y }} className="absolute inset-0 w-full h-[210%] -top-[55%]">
         <img
             src={src}
             alt={alt}
@@ -211,8 +166,10 @@ const Navbar: React.FC<{
   setCurrentView: (v: any) => void, 
   scrolled: boolean, 
   navHidden: boolean,
-  isSubpage?: boolean
-}> = ({ theme, toggleTheme, setCurrentView, scrolled, navHidden, isSubpage = false }) => {
+  isSubpage?: boolean,
+  isReady?: boolean,
+  setCurrentSectionIndex?: (i: number) => void
+}> = ({ theme, toggleTheme, setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, setCurrentSectionIndex }) => {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -230,13 +187,24 @@ const Navbar: React.FC<{
     };
 
     const handleNavigation = (view: string, sectionId: string) => {
+      if (view === 'home' && setCurrentSectionIndex) {
+        const sectionMap: Record<string, number> = {
+          'hero': 0, 'services': 1, 'trust': 2, 'water-deep': 3, 'market-deep': 4,
+          'bakery-deep': 5, 'dining-deep': 6, 'lounge-deep': 7, 'games-deep': 8,
+          'voices': 9, 'location': 10, 'cta': 11, 'footer': 12
+        };
+        if (sectionMap[sectionId] !== undefined) {
+          setCurrentSectionIndex(sectionMap[sectionId]);
+        }
+      }
+      
       setCurrentView(view as any);
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 100); // A small delay to allow the new view to render
+      }, 100);
     };
 
     useEffect(() => {
@@ -308,8 +276,12 @@ const Navbar: React.FC<{
 
     return (
       <motion.div 
-        animate={{ y: navHidden ? (isMobile ? 128 : -128) : 0 }}
-        transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
+        animate={{ 
+          y: navHidden ? (isMobile ? 128 : -128) : 0 
+        }}
+        transition={{ 
+          y: { duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }
+        }}
         className={`fixed z-[100] ${isMobile ? 'bottom-6 left-0 right-0 mx-auto w-[95%]' : 'top-0 left-0 w-full'}`}
       >
         {/* Main Nav Container */}
@@ -322,7 +294,11 @@ const Navbar: React.FC<{
         >
           <div className={`${isMobile ? 'w-full flex items-center justify-between' : 'mx-auto w-full flex items-center justify-between'}`}>
             {/* Logo Section */}
-            <div className={`flex items-center gap-2 sm:gap-3 cursor-pointer ${isMobile ? 'pl-2 pr-4 border-r border-white/10' : ''}`} onClick={() => { setCurrentView('home'); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <motion.div 
+              initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              transition={{ duration: 1.5, delay: isReady ? 3.4 : 0, ease: [0.76, 0, 0.24, 1] }}
+              className={`flex items-center gap-2 sm:gap-3 cursor-pointer ${isMobile ? 'pl-2 pr-4 border-r border-white/10' : ''}`} onClick={() => { setCurrentView('home'); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center shadow-lg shadow-primary/20">
                 <span className="material-icons text-white text-lg sm:text-xl">diamond</span>
               </div>
@@ -330,7 +306,7 @@ const Navbar: React.FC<{
                 <span className="font-heading font-black text-xs sm:text-sm tracking-tighter dark:text-white text-slate-900 leading-none uppercase">Orient</span>
                 <span className="text-[8px] sm:text-[9px] font-bold tracking-[0.3em] text-primary uppercase leading-none mt-0.5">Global</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Links Section */}
             {!isMobile && (
@@ -338,8 +314,11 @@ const Navbar: React.FC<{
                 className="flex-1 flex items-center relative h-full justify-center space-x-1 sm:space-x-2"
                 onMouseLeave={() => handleMouseLeave()}
               >
-                {navLinks.map((link) => (
-                  <button 
+                {navLinks.map((link, i) => (
+                  <motion.button 
+                    initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+                    animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+                    transition={{ duration: 1.5, delay: isReady ? 3.4 + ((i + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
                     key={link.name}
                     onMouseEnter={() => handleMouseEnter(link.name)}
                     onClick={() => {
@@ -360,13 +339,17 @@ const Navbar: React.FC<{
                         )}
                       </motion.span>
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             )}
 
             {/* Actions Section */}
-            <div className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}>
+            <motion.div 
+              initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              transition={{ duration: 1.5, delay: isReady ? 3.4 + ((navLinks.length + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
+              className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}>
               <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 dark:text-white text-slate-900">
                 <span className="material-icons text-sm sm:text-base">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
               </button>
@@ -385,7 +368,7 @@ const Navbar: React.FC<{
                   <span className="material-icons text-sm sm:text-base">{mobileMenuOpen ? 'close' : 'menu'}</span>
                 </button>
               )}
-            </div>
+            </motion.div>
           </div>
         </nav>
 
@@ -516,7 +499,7 @@ const Navbar: React.FC<{
     );
 };
 
-const Hero: React.FC = () => {
+const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isActive = false }) => {
   const ref = useRef(null);
   const { scrollContainerRef } = React.useContext(ScrollContext);
   const { scrollYProgress } = useScroll({
@@ -526,11 +509,8 @@ const Hero: React.FC = () => {
   });
   
   const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.8], [1, 1.15]);
   const blur = useTransform(scrollYProgress, [0, 0.5], ["blur(0px)", "blur(12px)"]);
-  const springYText = useSpring(yText, { stiffness: 70, damping: 20 });
 
   return (
     <div ref={ref} className="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden bg-transparent">
@@ -543,23 +523,55 @@ const Hero: React.FC = () => {
             alt="Luxury Ambience" 
         />
       </motion.div>
-      <motion.div style={{ y: springYText, opacity }} className="content-container relative z-20 max-w-5xl">
-        <ScrollItem index={0} className="mb-6">
-          <span className="text-primary font-black tracking-[0.4em] uppercase text-xs">Welcome to Orient Global</span>
-        </ScrollItem>
-        <ScrollItem index={1} className="font-heading font-black text-5xl sm:text-6xl md:text-8xl lg:text-[8.5rem] dark:text-white text-slate-900 mb-8 tracking-tighter leading-[0.8] uppercase">
-          <TextReveal text="ELEVATE" delay={0} />
-          <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-400 to-gray-500">
-             <TextReveal text="EVERYDAY." delay={0.4} />
-          </span>
-        </ScrollItem>
-        <ScrollItem index={2}>
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl dark:text-white/90 text-slate-800 max-w-4xl mx-auto font-light tracking-wide mb-16 leading-relaxed drop-shadow-md dark:drop-shadow-lg">
-            Experience a convergence of global excellence and Plateau soul across six premium lifestyle divisions.
-          </p>
-        </ScrollItem>
-      </motion.div>
+      
+      <div className="content-container relative z-20 max-w-5xl flex flex-col items-center justify-center h-full pt-[50px]">
+        <div className="flex flex-col items-center justify-center gap-8 w-full">
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+            animate={isReady ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+            transition={{ duration: 1.8, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden inline-block py-1 px-2"
+          >
+            <span className="text-slate-900 dark:text-white font-black tracking-[0.4em] uppercase text-sm block drop-shadow-[0_0_12px_rgba(0,0,0,0.5)]">
+              Welcome to Orient <span className="text-orange-400 dark:text-primary">Global</span>
+            </span>
+          </motion.div>
+
+          <div className="font-heading font-black text-5xl sm:text-6xl md:text-8xl lg:text-[8.5rem] dark:text-white text-slate-900 tracking-tighter leading-[0.8] uppercase flex flex-col items-center gap-2">
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
+              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              ELEVATE
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
+              transition={{ duration: 1.2, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-primary/90 via-primary to-primary/90"
+            >
+              EVERYDAY.
+            </motion.div>
+          </div>
+
+          <div className="relative w-full flex justify-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.7)_0%,_rgba(255,255,255,0)_70%)] dark:hidden pointer-events-none -z-10 blur-xl scale-150" />
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 1.5, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 px-6 py-4 rounded-2xl bg-white/10 dark:bg-transparent backdrop-blur-md dark:backdrop-blur-none border border-white/20 dark:border-transparent shadow-lg dark:shadow-none"
+            >
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white/90 text-slate-950 max-w-4xl mx-auto font-light tracking-wide leading-relaxed drop-shadow-xl dark:drop-shadow-lg text-center">
+                Experience a convergence of global excellence and Plateau soul across six premium lifestyle divisions.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+      
       <motion.div animate={{ y: [0, 20, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-24 z-20">
         <div className="w-[1px] h-32 bg-gradient-to-b from-primary via-primary/50 to-transparent mx-auto" />
       </motion.div>
@@ -567,33 +579,37 @@ const Hero: React.FC = () => {
   );
 };
 
-const FinalCTA: React.FC = () => {
+const FinalCTA: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <section className="relative flex flex-col justify-center bg-transparent border-t border-black/5 dark:border-white/5 items-center">
-      <div className="content-container relative z-10 text-center">
-        <Reveal>
-          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <span className="text-primary font-black uppercase tracking-[0.4em] text-[9px]">The New Standard of Excellence</span>
+      <ScrollReveal isActive={isActive} className="content-container relative z-10 text-center w-full">
+        <RevealItem index={0} totalItems={4}>
+          <div className="flex flex-col items-center mb-12 group">
+            <span className="text-primary font-black uppercase tracking-[0.6em] text-[12px] relative">
+              The New Standard of Excellence
+            </span>
           </div>
-        </Reveal>
+        </RevealItem>
 
-        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-6 leading-[0.8] uppercase tracking-tighter">
-          ORIENT<br />
-          <span className="text-primary">Global</span>
-        </h2>
+        <RevealItem index={1} totalItems={4}>
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-6 leading-[0.8] uppercase tracking-tighter">
+            ORIENT<br />
+            <span className="text-primary">Global</span>
+          </h2>
+        </RevealItem>
 
-        <Reveal>
+        <RevealItem index={2} totalItems={4}>
           <p className="text-sm md:text-base dark:text-gray-400 text-slate-500 max-w-xl mx-auto leading-relaxed font-medium mb-8">
             Ready to experience the future of Jos? Join us at the flagship destination where every detail is engineered for perfection.
           </p>
-        </Reveal>
+        </RevealItem>
 
-        <Reveal>
+        <RevealItem index={3} totalItems={4}>
           <div className="flex flex-wrap justify-center gap-4">
             <button className="px-6 py-3 bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-[0_10px_20px_rgba(242,158,13,0.3)] hover:scale-105 hover:shadow-[0_15px_30px_rgba(242,158,13,0.4)] transition-all duration-500">Visit Us Today</button>
           </div>
-        </Reveal>
-      </div>
+        </RevealItem>
+      </ScrollReveal>
     </section>
   );
 };
@@ -625,29 +641,35 @@ const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
   );
 };
 
-const BakeryDeepDive: React.FC = () => {
+const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='slide-from-left' className="order-2 lg:order-1">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <RevealItem className="order-2 lg:order-1" index={0} totalItems={7}>
           <ParallaxImage src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" alt="Baking Process" className="rounded-3xl aspect-square border border-black/5 dark:border-white/10 shadow-elite" />
-        </Reveal>
-        <Reveal animation='slide-from-right' className="order-1 lg:order-2">
-          <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] mb-4 block">Artisanal Process</span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
-          <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
+        </RevealItem>
+        <div className="order-1 lg:order-2 flex flex-col">
+          <RevealItem index={1} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] mb-4 block">Artisanal Process</span>
+          </RevealItem>
+          <RevealItem index={2} totalItems={7}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
+          </RevealItem>
+          <RevealItem index={3} totalItems={7}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
+          </RevealItem>
           <ul className="space-y-4">
             {['Natural Sourdough Starters', 'Stone-Ground Flour', 'No Artificial Additives'].map((item, i) => (
-              <Reveal key={item} delay={`delay-${i * 300}`}>
+              <RevealItem key={item} index={4 + i} totalItems={7}>
                 <li className="flex items-center gap-4 dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">
                   <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_15px_rgba(242,158,13,0.5)]" />
                   {item}
                 </li>
-              </Reveal>
+              </RevealItem>
             ))}
           </ul>
-        </Reveal>
-      </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 };
@@ -685,21 +707,21 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
   );
 };
 
-const MarketDeepDive: React.FC = () => {
+const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
         <div className="flex flex-col">
-          <Reveal animation='slide-from-right' delay="delay-100">
+          <RevealItem index={0} totalItems={5}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Supply Chain</span>
-          </Reveal>
-          <Reveal animation='slide-from-right' delay="delay-200">
+          </RevealItem>
+          <RevealItem index={1} totalItems={5}>
             <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">INSTITUTIONAL <br/><span className="text-primary">Quality</span></h2>
-          </Reveal>
-          <Reveal animation='slide-from-right' delay="delay-300">
+          </RevealItem>
+          <RevealItem index={2} totalItems={5}>
             <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
-          </Reveal>
-          <Reveal animation='slide-from-right' delay="delay-400">
+          </RevealItem>
+          <RevealItem index={3} totalItems={5}>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
                 <h4 className="dark:text-white text-slate-900 font-black uppercase text-xs tracking-widest mb-2">Cold Chain</h4>
@@ -710,14 +732,14 @@ const MarketDeepDive: React.FC = () => {
                 <p className="dark:text-gray-500 text-slate-500 text-xs font-medium">Direct from Global Producers</p>
               </div>
             </div>
-          </Reveal>
+          </RevealItem>
         </div>
-        <Reveal animation='slide-from-left'>
+        <RevealItem index={4} totalItems={5}>
           <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1974&auto=format&fit=crop" alt="Market Logistics" className="w-full h-full" />
           </div>
-        </Reveal>
-      </div>
+        </RevealItem>
+      </ScrollReveal>
     </div>
   );
 };
@@ -755,27 +777,35 @@ const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
   );
 };
 
-const DiningDeepDive: React.FC = () => {
+const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='rotate-in' className="order-2 lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <RevealItem className="order-2 lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite" index={0} totalItems={7}>
           <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full" />
-        </Reveal>
-        <Reveal animation='slide-from-right' className="order-1 lg:order-2">
-          <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
-          <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
+        </RevealItem>
+        <div className="order-1 lg:order-2 flex flex-col">
+          <RevealItem index={1} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
+          </RevealItem>
+          <RevealItem index={2} totalItems={7}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
+          </RevealItem>
+          <RevealItem index={3} totalItems={7}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
+          </RevealItem>
           <div className="space-y-4">
-            {['Locally Sourced Produce', 'Artisanal Plating', 'Curated Wine Pairings'].map(item => (
-              <div key={item} className="flex items-center gap-6 p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
-                <span className="material-icons text-primary text-2xl">restaurant_menu</span>
-                <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{item}</span>
-              </div>
+            {['Locally Sourced Produce', 'Artisanal Plating', 'Curated Wine Pairings'].map((item, i) => (
+              <RevealItem key={item} index={4 + i} totalItems={7}>
+                <div className="flex items-center gap-6 p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                  <span className="material-icons text-primary text-2xl">restaurant_menu</span>
+                  <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{item}</span>
+                </div>
+              </RevealItem>
             ))}
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 };
@@ -807,15 +837,21 @@ const WaterShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
   );
 };
 
-const WaterDeepDive: React.FC = () => {
+const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='slide-from-left'>
-          <div>
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <div className="flex flex-col">
+          <RevealItem index={0} totalItems={5}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Technical Purity</span>
+          </RevealItem>
+          <RevealItem index={1} totalItems={5}>
             <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">7-STEP <br/><span className="text-primary">Filtration</span></h2>
+          </RevealItem>
+          <RevealItem index={2} totalItems={5}>
             <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
+          </RevealItem>
+          <RevealItem index={3} totalItems={5}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {['Reverse Osmosis', 'UV Sterilization', 'Ozone Treatment', 'Mineral Balancing'].map(step => (
                 <div key={step} className="flex items-center gap-4 p-4 rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
@@ -824,14 +860,14 @@ const WaterDeepDive: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        </Reveal>
-        <Reveal animation='slide-from-right'>
+          </RevealItem>
+        </div>
+        <RevealItem index={4} totalItems={5}>
           <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2036&auto=format&fit=crop" alt="Water Laboratory" className="w-full h-full" />
           </div>
-        </Reveal>
-      </div>
+        </RevealItem>
+      </ScrollReveal>
     </div>
   );
 };
@@ -877,28 +913,34 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
   );
 };
 
-const LoungeDeepDive: React.FC = () => {
+const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='slide-from-left' className="order-2 lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-3xl">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <RevealItem className="order-2 lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-3xl" index={0} totalItems={8}>
           <ParallaxImage src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop" alt="Mixology" className="w-full h-full" />
-        </Reveal>
-        <Reveal animation='slide-from-right' className="order-1 lg:order-2">
-          <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Mixology Art</span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6">THE NIGHTSCAPE <span className="dark:text-white/40 text-slate-400 italic">ETHOS.</span></h2>
-          <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8">Our mixologists are alchemists, blending local botanicals with premium spirits to create unique sensory experiences. The Nightscape Lounge is more than a bar; it's a sanctuary for the discerning.</p>
+        </RevealItem>
+        <div className="order-1 lg:order-2 flex flex-col">
+          <RevealItem index={1} totalItems={8}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Mixology Art</span>
+          </RevealItem>
+          <RevealItem index={2} totalItems={8}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6">THE NIGHTSCAPE <span className="dark:text-white/40 text-slate-400 italic">ETHOS.</span></h2>
+          </RevealItem>
+          <RevealItem index={3} totalItems={8}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8">Our mixologists are alchemists, blending local botanicals with premium spirits to create unique sensory experiences. The Nightscape Lounge is more than a bar; it's a sanctuary for the discerning.</p>
+          </RevealItem>
           <div className="grid grid-cols-2 gap-4">
             {['Signature Cocktails', 'Rare Spirits', 'Bespoke Service', 'Acoustic Excellence'].map((item, i) => (
-              <Reveal key={item} delay={`delay-${i * 200}`}>
+              <RevealItem key={item} index={4 + i} totalItems={8}>
                 <div className="p-4 rounded-2xl dark:bg-white/5 bg-black/5 border dark:border-white/10 border-black/10 text-center">
                   <span className="dark:text-white text-slate-900 font-black uppercase tracking-widest text-[10px]">{item}</span>
                 </div>
-              </Reveal>
+              </RevealItem>
             ))}
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 };
@@ -930,34 +972,42 @@ const GamesShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
   );
 };
 
-const GamesDeepDive: React.FC = () => {
+const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='slide-from-right'>
-          <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Tech Ecosystem</span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">ZERO LAG <br/><span className="text-primary">Infrastructure</span></h2>
-          <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <div className="flex flex-col">
+          <RevealItem index={0} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Tech Ecosystem</span>
+          </RevealItem>
+          <RevealItem index={1} totalItems={7}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">ZERO LAG <br/><span className="text-primary">Infrastructure</span></h2>
+          </RevealItem>
+          <RevealItem index={2} totalItems={7}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
+          </RevealItem>
           <div className="space-y-4">
-            {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map(spec => (
-              <div key={spec} className="flex items-center justify-between p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
-                <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{spec}</span>
-                <span className="material-icons text-primary text-xl">bolt</span>
-              </div>
+            {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map((spec, i) => (
+              <RevealItem key={spec} index={3 + i} totalItems={7}>
+                <div className="flex items-center justify-between p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                  <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{spec}</span>
+                  <span className="material-icons text-primary text-xl">bolt</span>
+                </div>
+              </RevealItem>
             ))}
           </div>
-        </Reveal>
-        <Reveal animation='rotate-in'>
+        </div>
+        <RevealItem index={6} totalItems={7}>
           <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop" alt="Gaming Hardware" className="w-full h-full" />
           </div>
-        </Reveal>
-      </div>
+        </RevealItem>
+      </ScrollReveal>
     </div>
   );
 };
 
-const VoicesOfJos: React.FC = () => {
+const VoicesOfJos: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   const reviews = [
     { name: 'Sarah N.', role: 'Rayfield Resident', text: "I've never seen a supermarket this clean in Jos. It feels like I'm abroad...", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop" },
     { name: 'David O.', role: 'Gamer', text: "The internet speed at the gaming lounge is insane. No lag at all.", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop" },
@@ -966,17 +1016,17 @@ const VoicesOfJos: React.FC = () => {
   return (
     <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center h-screen">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(242,158,13,0.03),transparent_70%)] pointer-events-none" />
-      <div className="lg:max-w-[67vw] mx-auto flex flex-col justify-center">
-        <Reveal>
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col justify-center w-full">
+        <RevealItem index={0} totalItems={4}>
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-black dark:text-white text-slate-900 mb-4 uppercase tracking-tighter leading-none">VOICES OF <br/><span className="text-primary">Jos</span></h2>
             <p className="dark:text-gray-400 text-slate-500 font-bold text-sm uppercase tracking-[0.3em]">Real stories from our community.</p>
           </div>
-        </Reveal>
+        </RevealItem>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {reviews.map((rev, idx) => (
-            <Reveal key={rev.name} delay={`delay-${idx * 300}`}>
-              <motion.div whileHover={{ y: -10 }} className="dark:bg-background-dark bg-white p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative">
+            <RevealItem key={rev.name} index={1 + idx} totalItems={4}>
+              <motion.div whileHover={{ y: -10 }} className="dark:bg-background-dark bg-white p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative h-full">
                 <div className="flex items-center gap-4 mb-8">
                   <img src={rev.img} className="w-12 h-12 rounded-full border-2 border-primary/20 object-cover shadow-lg" alt={rev.name} />
                   <div>
@@ -998,10 +1048,10 @@ const VoicesOfJos: React.FC = () => {
                 <p className="dark:text-gray-300 text-slate-500 text-sm italic font-medium leading-relaxed">"{rev.text}"</p>
                 <span className="material-icons absolute top-6 right-6 text-primary/10 text-4xl">format_quote</span>
               </motion.div>
-            </Reveal>
+            </RevealItem>
           ))}
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 };
@@ -1012,14 +1062,13 @@ const MagneticCard: React.FC<{
   subtitle?: string; 
   icon: string; 
   img: string; 
-  isHovered: boolean;
-  onHover: (id: string | null) => void;
   onClick?: () => void;
   className?: string;
   style?: any;
   titleSize?: string;
-}> = ({ id, title, subtitle, icon, img, isHovered, onHover, onClick, className = "", style = {}, titleSize = "text-2xl" }) => {
+}> = ({ id, title, subtitle, icon, img, onClick, className = "", style = {}, titleSize = "text-2xl" }) => {
   const { onMouseMove, onMouseLeave, rotateX, rotateY, spotlightX, spotlightY } = useMagneticTilt();
+  const [isHovered, setIsHovered] = useState(false);
 
   const ref = useRef(null);
   const { scrollContainerRef } = React.useContext(ScrollContext);
@@ -1033,14 +1082,13 @@ const MagneticCard: React.FC<{
   return (
     <motion.div
       ref={ref}
-      layout
       id={id}
-      onHoverStart={() => onHover(id)}
-      onHoverEnd={() => onHover(null)}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       whileHover={{ y: -15 }}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      className={`relative rounded-[3rem] overflow-hidden cursor-pointer border border-black/5 dark:border-white/10 dark:bg-zinc-900/40 bg-white shadow-soft hover:shadow-elite transition-all duration-500 group ${className}`}
+      className={`relative rounded-2xl sm:rounded-[2rem] overflow-hidden cursor-pointer border border-black/5 dark:border-white/10 dark:bg-zinc-900/40 bg-white shadow-soft hover:shadow-elite transition-all duration-500 group ${className}`}
       style={{ ...style, perspective: 1000, rotateX: isHovered ? rotateX : 0, rotateY: isHovered ? rotateY : 0 }}
       transition={{ type: "spring", stiffness: 120, damping: 20, mass: 1 }}
       onClick={onClick}
@@ -1066,142 +1114,100 @@ const MagneticCard: React.FC<{
   );
 };
 
-const ServicesGrid: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
-  const [hovered, setHovered] = useState<string | null>(null);
-  const gridTransition = { type: "spring" as const, stiffness: 120, damping: 25, mass: 1 };
-
+const ServicesGrid: React.FC<{ setCurrentView: (v: any) => void; isActive?: boolean }> = ({ setCurrentView, isActive = false }) => {
   const handleNavigate = (view: string) => {
     setCurrentView(view);
     document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getGridStyles = () => {
-    if (typeof window === 'undefined' || window.innerWidth < 1024) {
-      return {
-        gridTemplateColumns: '1fr',
-        gridTemplateRows: 'repeat(6, 450px)',
-      };
-    }
-
-    let cols = '1fr 1fr 1fr';
-    let rows = '1fr 1fr';
-
-    if (hovered === 'card-bakery') { cols = '1.4fr 0.8fr 0.8fr'; rows = '1.2fr 0.8fr'; }
-    if (hovered === 'card-market') { cols = '1.4fr 0.8fr 0.8fr'; rows = '0.8fr 1.2fr'; }
-    if (hovered === 'card-restaurant') { cols = '0.8fr 1.4fr 0.8fr'; rows = '1.2fr 0.8fr'; }
-    if (hovered === 'card-water') { cols = '0.8fr 1.4fr 0.8fr'; rows = '0.8fr 1.2fr'; }
-    if (hovered === 'card-lounge') { cols = '0.8fr 0.8fr 1.4fr'; rows = '1.2fr 0.8fr'; }
-    if (hovered === 'card-games') { cols = '0.8fr 0.8fr 1.4fr'; rows = '0.8fr 1.2fr'; }
-
-    return {
-      gridTemplateColumns: cols,
-      gridTemplateRows: rows,
-    };
-  };
-
   return (
-    <section className="relative z-30 bg-transparent h-screen flex flex-col justify-center px-4 sm:px-8 items-center">
-      <div className="lg:max-w-[67vw] mx-auto w-full">
-        <Reveal>
-          <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
-            Bespoke Services
-          </span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mb-8">
-            FOR THOSE WHO DEMAND <span className="dark:text-white/40 text-slate-300 italic">EXCELLENCE.</span>
-          </h2>
-        </Reveal>
+    <section className="relative z-30 bg-transparent h-[90vh] sm:h-[87vh] flex flex-col justify-center px-4 sm:px-8 items-center mt-0 sm:mt-0">
+      <div className="lg:max-w-[67vw] mx-auto w-full flex flex-col items-center justify-center h-full">
+        <ScrollReveal isActive={isActive} className="w-full flex flex-col items-center">
+          <RevealItem className="text-center w-full" index={0}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-2 sm:mb-4 block">
+              Bespoke Services
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mx-auto mb-4 sm:mb-8">
+              FOR THOSE WHO DEMAND <span className="dark:text-white/40 text-slate-300 italic">EXCELLENCE.</span>
+            </h2>
+          </RevealItem>
 
-        <motion.div 
-          layout 
-          className="grid gap-6 w-full h-full min-h-[50vh]" 
-          style={getGridStyles()}
-          transition={gridTransition}
-        >
-          <Reveal delay={0.4} className='h-full'>
-            <MagneticCard 
-              id="card-bakery" 
-              title="Bakery" 
-              subtitle="Artisanal Breads" 
-              icon="bakery_dining" 
-              img="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" 
-              isHovered={hovered === 'card-bakery'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('bakery')}
-              className="h-full"
-            />
-          </Reveal>
-          <Reveal delay={0.4} className='h-full'>
-            <MagneticCard 
-              id="card-restaurant" 
-              title="Dining" 
-              subtitle="Chef-Curated" 
-              icon="restaurant" 
-              img="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop" 
-              isHovered={hovered === 'card-restaurant'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('dining')}
-              className="h-full"
-            />
-          </Reveal>
-          <Reveal delay={0.6} className='h-full'>
-            <MagneticCard 
-              id="card-lounge" 
-              title="Lounge" 
-              subtitle="Premium Spirits" 
-              icon="liquor" 
-              img="https://images.unsplash.com/photo-1574096079513-d8259312b785?q=80&w=2070&auto=format&fit=crop" 
-              isHovered={hovered === 'card-lounge'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('lounge')}
-              className="h-full"
-            />
-          </Reveal>
-          <Reveal delay={0.8} className='h-full'>
-            <MagneticCard 
-              id="card-market" 
-              title="Market" 
-              subtitle="Global Sourcing" 
-              icon="shopping_cart" 
-              img="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2074&auto=format&fit=crop" 
-              isHovered={hovered === 'card-market'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('supermarket')}
-              className="h-full"
-            />
-          </Reveal>
-          <Reveal delay={1.0} className='h-full'>
-            <MagneticCard 
-              id="card-water" 
-              title="Water" 
-              subtitle="Pure Excellence" 
-              icon="water_drop" 
-              img="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2070&auto=format&fit=crop" 
-              isHovered={hovered === 'card-water'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('water')}
-              className="h-full"
-            />
-          </Reveal>
-          <Reveal delay={1.2} className='h-full'>
-            <MagneticCard 
-              id="card-games" 
-              title="Games" 
-              subtitle="VR Frontier" 
-              icon="sports_esports" 
-              img="https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?q=80&w=2012&auto=format&fit=crop" 
-              isHovered={hovered === 'card-games'}
-              onHover={setHovered}
-              onClick={() => handleNavigate('games')}
-              className="h-full"
-            />
-          </Reveal>
-        </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-3 gap-3 sm:gap-4 mx-auto w-full lg:w-[55vw] h-[60vh] sm:h-[55vh] lg:h-[60vh] min-h-[400px] sm:min-h-[500px]">
+            <RevealItem className='h-full lg:col-span-2 lg:row-span-2' index={1} totalItems={6}>
+              <MagneticCard 
+                id="card-bakery" 
+                title="Bakery" 
+                subtitle="Artisanal Breads" 
+                icon="bakery_dining" 
+                img="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" 
+                onClick={() => handleNavigate('bakery')}
+                className="h-full"
+              />
+            </RevealItem>
+            <RevealItem className='h-full lg:col-span-2 lg:row-span-1' index={2} totalItems={6}>
+              <MagneticCard 
+                id="card-restaurant" 
+                title="Dining" 
+                subtitle="Chef-Curated" 
+                icon="restaurant" 
+                img="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop" 
+                onClick={() => handleNavigate('dining')}
+                className="h-full"
+              />
+            </RevealItem>
+            <RevealItem className='h-full lg:col-span-1 lg:row-span-2' index={3} totalItems={6}>
+              <MagneticCard 
+                id="card-lounge" 
+                title="Lounge" 
+                subtitle="Premium Spirits" 
+                icon="liquor" 
+                img="https://images.unsplash.com/photo-1574096079513-d8259312b785?q=80&w=2070&auto=format&fit=crop" 
+                onClick={() => handleNavigate('lounge')}
+                className="h-full"
+              />
+            </RevealItem>
+            <RevealItem className='h-full lg:col-span-1 lg:row-span-1' index={4} totalItems={6}>
+              <MagneticCard 
+                id="card-market" 
+                title="Market" 
+                subtitle="Global Sourcing" 
+                icon="shopping_cart" 
+                img="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2074&auto=format&fit=crop" 
+                onClick={() => handleNavigate('supermarket')}
+                className="h-full"
+              />
+            </RevealItem>
+            <RevealItem className='h-full lg:col-span-2 lg:row-span-1' index={5} totalItems={6}>
+              <MagneticCard 
+                id="card-games" 
+                title="Games" 
+                subtitle="VR Frontier" 
+                icon="sports_esports" 
+                img="https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?q=80&w=2012&auto=format&fit=crop" 
+                onClick={() => handleNavigate('games')}
+                className="h-full"
+              />
+            </RevealItem>
+            <RevealItem className='h-full lg:col-span-1 lg:row-span-1' index={6} totalItems={6}>
+              <MagneticCard 
+                id="card-water" 
+                title="Water" 
+                subtitle="Pure Excellence" 
+                icon="water_drop" 
+                img="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2070&auto=format&fit=crop" 
+                onClick={() => handleNavigate('water')}
+                className="h-full"
+              />
+            </RevealItem>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );
 };
 
-const TrustSection: React.FC = () => {
+const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   const certifications = [
     { name: "NAFDAC Certified", icon: "verified", desc: "Meeting the highest national safety standards for food and water production." },
     { name: "ISO 9001:2015", icon: "workspace_premium", desc: "International quality management systems ensuring consistent excellence." },
@@ -1211,23 +1217,29 @@ const TrustSection: React.FC = () => {
   return (
     <section className="flex flex-col justify-center px-6 relative overflow-hidden bg-transparent border-t border-black/5 dark:border-white/5 items-center h-screen">
       <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_right,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
-      <div className="lg:max-w-[67vw] mx-auto flex flex-col justify-center">
-        <Reveal>
-          <div className="text-center mb-16">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col justify-center w-full">
+        <div className="text-center mb-16">
+          <RevealItem index={0} totalItems={6}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
               The Standard of Trust
             </span>
-            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">
+          </RevealItem>
+          <RevealItem index={1} totalItems={6}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-6">
               UNCOMPROMISING <br/><span className="text-primary">Quality</span>
             </h2>
-          </div>
-        </Reveal>
+          </RevealItem>
+          <RevealItem index={2} totalItems={6}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed font-medium max-w-2xl mx-auto">
+              We don't just meet standards; we set them. Orient Global operates under strict international compliance protocols, ensuring that every product and service delivers safety, quality, and reliability.
+            </p>
+          </RevealItem>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {certifications.map((cert, i) => (
-            <Reveal key={cert.name} delay={`delay-${i * 300}`}>
-              <div 
-                className="p-8 rounded-3xl bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft group hover:border-primary/30 transition-all duration-700 relative overflow-hidden"
-              >
+            <RevealItem key={cert.name} index={3 + i} totalItems={6}>
+              <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft group hover:border-primary/30 transition-all duration-700 relative overflow-hidden h-full">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[60px] rounded-full group-hover:bg-primary/10 transition-colors duration-500" />
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                   <span className="material-icons text-primary text-3xl">{cert.icon}</span>
@@ -1235,31 +1247,37 @@ const TrustSection: React.FC = () => {
                 <h3 className="text-xl font-black dark:text-white text-slate-900 uppercase mb-4 tracking-tight leading-none">{cert.name}</h3>
                 <p className="dark:text-gray-400 text-slate-600 leading-relaxed font-medium text-sm">{cert.desc}</p>
               </div>
-            </Reveal>
+            </RevealItem>
           ))}
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 };
 
-const LocationSection: React.FC = () => {
+const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <section className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative overflow-hidden items-center h-screen">
       <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <Reveal animation='slide-from-left'>
-          <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
-            Our Presence
-          </span>
-          <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">
-            RAYFIELD, <br/><span className="text-primary">Jos</span>
-          </h2>
-          <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">
-            Visit our flagship destination at Amanda Plaza. A convergence of all lifestyle divisions in the heart of Plateau State.
-          </p>
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        <div className="flex flex-col">
+          <RevealItem index={0} totalItems={6}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
+              Our Presence
+            </span>
+          </RevealItem>
+          <RevealItem index={1} totalItems={6}>
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">
+              RAYFIELD, <br/><span className="text-primary">Jos</span>
+            </h2>
+          </RevealItem>
+          <RevealItem index={2} totalItems={6}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">
+              Visit our flagship destination at Amanda Plaza. A convergence of all lifestyle divisions in the heart of Plateau State.
+            </p>
+          </RevealItem>
           <div className="space-y-4">
-            <Reveal delay='delay-75'>
+            <RevealItem index={3} totalItems={6}>
               <div className="flex items-center gap-6 p-6 rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                   <span className="material-icons text-primary text-3xl">location_on</span>
@@ -1269,8 +1287,8 @@ const LocationSection: React.FC = () => {
                   <p className="dark:text-gray-500 text-slate-400 text-sm font-medium">Rayfield, Jos, Plateau State</p>
                 </div>
               </div>
-            </Reveal>
-            <Reveal delay='delay-150'>
+            </RevealItem>
+            <RevealItem index={4} totalItems={6}>
               <div className="flex items-center gap-6 p-6 rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                   <span className="material-icons text-primary text-3xl">schedule</span>
@@ -1280,10 +1298,10 @@ const LocationSection: React.FC = () => {
                   <p className="dark:text-gray-500 text-slate-400 text-sm font-medium">8:00 AM - 11:00 PM</p>
                 </div>
               </div>
-            </Reveal>
+            </RevealItem>
           </div>
-        </Reveal>
-        <Reveal animation='slide-from-right'>
+        </div>
+        <RevealItem index={5} totalItems={6}>
           <div className="relative aspect-square rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=2066&auto=format&fit=crop" alt="Jos Landscape" className="w-full h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
@@ -1293,8 +1311,8 @@ const LocationSection: React.FC = () => {
               </div>
             </div>
           </div>
-        </Reveal>
-      </div>
+        </RevealItem>
+      </ScrollReveal>
     </section>
   );
 };
@@ -1607,174 +1625,6 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   );
 };
 
-const SnakeBackground: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationFrameId: number;
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    // Snake Configuration
-    const segmentCount = 150; // Long snake
-    const segmentDist = 2;
-    const segments: { x: number; y: number }[] = [];
-    
-    // Initialize segments
-    for (let i = 0; i < segmentCount; i++) {
-      segments.push({ x: width / 2, y: height / 2 });
-    }
-
-    let angle = Math.random() * Math.PI * 2;
-    let targetAngle = angle;
-    let speed = 2;
-    let turnSpeed = 0.02;
-    let mode: 'cruising' | 'hunting' = 'cruising';
-    let modeTimer = 0;
-    
-    // Target position (food)
-    let target = { x: Math.random() * width, y: Math.random() * height };
-
-    const update = () => {
-      // Mode Switching Logic
-      modeTimer++;
-      if (modeTimer > 300) { // Switch every ~5 seconds
-        modeTimer = 0;
-        mode = Math.random() > 0.7 ? 'hunting' : 'cruising';
-        
-        if (mode === 'hunting') {
-          speed = 5 + Math.random() * 3; // Fast
-          turnSpeed = 0.1 + Math.random() * 0.1; // Sharp turns
-        } else {
-          speed = 1.5 + Math.random(); // Slow
-          turnSpeed = 0.01 + Math.random() * 0.02; // Gentle turns
-        }
-      }
-
-      // Target Logic
-      const dx = target.x - segments[0].x;
-      const dy = target.y - segments[0].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < 100 || Math.random() < 0.005) {
-        // Pick new target
-        target = { 
-          x: Math.random() * width, 
-          y: Math.random() * height 
-        };
-      }
-
-      // Steering
-      const desiredAngle = Math.atan2(dy, dx);
-      let angleDiff = desiredAngle - angle;
-      
-      // Normalize angle diff
-      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-
-      // Apply turn
-      if (Math.abs(angleDiff) < turnSpeed) {
-        angle = desiredAngle;
-      } else {
-        angle += Math.sign(angleDiff) * turnSpeed;
-      }
-
-      // Move Head
-      const head = segments[0];
-      const nextX = head.x + Math.cos(angle) * speed;
-      const nextY = head.y + Math.sin(angle) * speed;
-
-      // Boundary Wrap
-      segments[0].x = (nextX + width) % width;
-      segments[0].y = (nextY + height) % height;
-
-      // Move Body (Inverse Kinematics / Follow)
-      for (let i = 1; i < segmentCount; i++) {
-        const curr = segments[i];
-        const prev = segments[i - 1];
-        const dx = curr.x - prev.x;
-        const dy = curr.y - prev.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        
-        // Handle wrapping for body segments
-        if (dist > 100) {
-           curr.x = prev.x;
-           curr.y = prev.y;
-        } else if (dist > segmentDist) {
-           const angle = Math.atan2(dy, dx);
-           curr.x = prev.x + Math.cos(angle) * segmentDist;
-           curr.y = prev.y + Math.sin(angle) * segmentDist;
-        }
-      }
-    };
-
-    const draw = () => {
-      // Clear with trail effect
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.0)'; // Transparent clear
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw Snake
-      ctx.beginPath();
-      ctx.moveTo(segments[0].x, segments[0].y);
-      
-      // Smooth curve through points
-      for (let i = 1; i < segmentCount - 1; i++) {
-        const xc = (segments[i].x + segments[i + 1].x) / 2;
-        const yc = (segments[i].y + segments[i + 1].y) / 2;
-        ctx.quadraticCurveTo(segments[i].x, segments[i].y, xc, yc);
-      }
-      
-      // Styling
-      const gradient = ctx.createLinearGradient(segments[0].x, segments[0].y, segments[segmentCount-1].x, segments[segmentCount-1].y);
-      gradient.addColorStop(0, 'rgba(249, 115, 22, 0.8)'); // Primary Orange
-      gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');   // Transparent tail
-      
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 15;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = 'rgba(249, 115, 22, 0.6)';
-      
-      ctx.stroke();
-    };
-
-    const loop = () => {
-      update();
-      draw();
-      animationFrameId = requestAnimationFrame(loop);
-    };
-
-    loop();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60 dark:opacity-40 blur-xl" />
-      <div className="absolute inset-0 bg-white/5 dark:bg-white/5 backdrop-blur-[1px]" />
-    </div>
-  );
-};
-
 const App: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: scrollContainerRef });
@@ -1798,104 +1648,95 @@ const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
   const lastScrollY = React.useRef(0);
+  const isScrolling = React.useRef(false);
+  const wheelAccumulator = React.useRef(0);
+  const lastWheelTime = React.useRef(0);
+  const touchAccumulator = React.useRef(0);
+  const lastTouchY = React.useRef(0);
+  const sectionCount = 13; // Total sections in home view
 
   useEffect(() => {
     const container = document.getElementById('main-scroll-container');
-    if (!container) return;
+    if (!container || currentView !== 'home') return;
 
-    // Initialize Lenis
-    const isMobile = window.innerWidth < 1024;
-    const lenis = new Lenis({
-      wrapper: container,
-      content: container.firstElementChild as HTMLElement,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 2,
-    });
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const now = Date.now();
+      const dt = now - lastWheelTime.current;
+      lastWheelTime.current = now;
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+      if (dt > 250) wheelAccumulator.current = 0;
+      wheelAccumulator.current += e.deltaY;
 
-    let isAnimating = false;
-    let snapTimeout: ReturnType<typeof setTimeout> | null = null;
+      const isFast = dt < 80;
+      const threshold = isFast ? 304 : 592;
 
-    const handleLenisScroll = (e: any) => {
-      if (isMobile) return;
+      if (Math.abs(wheelAccumulator.current) >= threshold) {
+        if (isScrolling.current && !isFast) return;
+        const direction = wheelAccumulator.current > 0 ? 'down' : 'up';
+        const intensity = Math.abs(wheelAccumulator.current);
+        const jump = Math.min(4, Math.max(1, Math.floor(intensity / threshold)));
+        
+        setScrollDirection(direction);
+        setCurrentSectionIndex(prev => {
+          let next = direction === 'down' ? prev + jump : prev - jump;
+          return Math.max(0, Math.min(sectionCount - 1, next));
+        });
 
-      const currentScrollY = e.scroll;
-      setScrolled(currentScrollY > 50);
-      
-      const velocity = Math.abs(e.velocity);
-
-      // Clear pending snap if we are actively scrolling
-      if (snapTimeout) clearTimeout(snapTimeout);
-
-      if (!isAnimating) {
-        // If velocity drops below a low threshold, momentum is dying down.
-        // We set a short timeout to snap to the nearest section.
-        if (velocity < 5) {
-          snapTimeout = setTimeout(() => {
-            if (isAnimating) return;
-            const sections = Array.from(document.querySelectorAll('.cinematic-section')) as HTMLElement[];
-            if (!sections.length) return;
-
-            const viewportCenter = window.innerHeight / 2;
-            let closestSection = sections[0];
-            let minDistance = Infinity;
-
-            sections.forEach((section) => {
-              const rect = section.getBoundingClientRect();
-              const sectionCenter = rect.top + rect.height / 2;
-              const distance = Math.abs(sectionCenter - viewportCenter);
-              if (distance < minDistance) {
-                minDistance = distance;
-                closestSection = section;
-              }
-            });
-
-            // Only snap if we're more than 70px away from perfect alignment (as requested)
-            const rect = closestSection.getBoundingClientRect();
-            if (Math.abs(rect.top) > 70) {
-              isAnimating = true;
-              lenis.scrollTo(closestSection, {
-                duration: 1.0,
-                easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t, // easeInOutQuad
-                onComplete: () => {
-                  isAnimating = false;
-                }
-              });
-            }
-          }, 10); // Wait 10ms after velocity drops to ensure they actually stopped
-        }
+        isScrolling.current = true;
+        wheelAccumulator.current = 0;
+        setTimeout(() => { isScrolling.current = false; }, isFast ? 150 : 700);
       }
-
-      // Navbar hide/show logic based on scroll direction
-      const diff = currentScrollY - lastScrollY.current;
-      if (diff > 0 && currentScrollY > 10) {
-        setNavHidden(true);
-      } else if (diff < -15 && currentScrollY > 0) {
-        setNavHidden(false);
-      } else if (currentScrollY <= 0) {
-        setNavHidden(false);
-      }
-      
-      lastScrollY.current = currentScrollY;
     };
 
-    lenis.on('scroll', handleLenisScroll);
+    const handleTouchStart = (e: TouchEvent) => {
+      lastTouchY.current = e.touches[0].clientY;
+      touchAccumulator.current = 0;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const currentY = e.touches[0].clientY;
+      const deltaY = lastTouchY.current - currentY;
+      lastTouchY.current = currentY;
+      touchAccumulator.current += deltaY;
+
+      const now = Date.now();
+      const dt = now - lastWheelTime.current;
+      lastWheelTime.current = now;
+
+      const isFast = dt < 80;
+      const threshold = isFast ? 203 : 423;
+
+      if (Math.abs(touchAccumulator.current) >= threshold) {
+        if (isScrolling.current && !isFast) return;
+        const direction = touchAccumulator.current > 0 ? 'down' : 'up';
+        const jump = Math.min(3, Math.max(1, Math.floor(Math.abs(touchAccumulator.current) / threshold)));
+        setScrollDirection(direction);
+        setCurrentSectionIndex(prev => Math.max(0, Math.min(sectionCount - 1, direction === 'down' ? prev + jump : prev - jump)));
+        isScrolling.current = true;
+        touchAccumulator.current = 0;
+        setTimeout(() => { isScrolling.current = false; }, isFast ? 200 : 800);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     
     return () => {
-      lenis.off('scroll', handleLenisScroll);
-      lenis.destroy();
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
   }, [currentView]);
+
+  useEffect(() => {
+    setScrolled(currentSectionIndex > 0);
+    setNavHidden(scrollDirection === 'down' && currentSectionIndex > 0);
+  }, [currentSectionIndex, scrollDirection]);
 
   useEffect(() => {
     const activeTheme = divisionThemes[currentView] || 'dark';
@@ -1946,59 +1787,64 @@ const App: React.FC = () => {
         <AnimatePresence>
             {isLoading && <Preloader onComplete={() => setIsLoading(false)} theme={globalTheme} />}
         </AnimatePresence>
-        <div className="bg-slate-50 dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
-          <motion.div style={{ y: backgroundY }} className="absolute inset-0 z-0 h-[120%]">
-            <SnakeBackground />
-          </motion.div>
+        <div className="bg-white dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
+          {/* Background is now simple white/dark as per user request */}
           
-          <div ref={scrollContainerRef} className="w-full mx-auto h-[100dvh] overflow-y-auto overflow-x-hidden scroll-smooth bg-transparent [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" id="main-scroll-container">
-            <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId }}>
+          <div ref={scrollContainerRef} className="fixed inset-0 w-full h-full bg-transparent overflow-hidden" id="main-scroll-container">
+            <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId, currentSectionIndex, setCurrentSectionIndex, scrollDirection, setScrollDirection }}>
             {currentView === 'home' && (
-              <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} />
-                <SectionWrapper id="hero" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
-                  <Hero />
+              <motion.div 
+                className="relative w-full h-full"
+                animate={{ y: -currentSectionIndex * window.innerHeight }}
+                transition={{ type: "spring", stiffness: 100, damping: 20, mass: 1 }}
+              >
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} setCurrentSectionIndex={setCurrentSectionIndex} />
+
+                <SectionWrapper id="hero" index={0} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <Hero isReady={!isLoading} isActive={currentSectionIndex === 0} />
                 </SectionWrapper>
+                
                 <div className="relative z-10 bg-transparent">
-                  <SectionWrapper id="services" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="services" index={1} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                       <ServicesGrid setCurrentView={setCurrentView} />
                   </SectionWrapper>
-                  <SectionWrapper id="trust" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="trust" index={2} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                       <TrustSection />
                   </SectionWrapper>
-                  <SectionWrapper id="water-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="water-deep" index={3} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                       <WaterDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="market-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="market-deep" index={4} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                       <MarketDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="bakery-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="bakery-deep" index={5} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <BakeryDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="dining-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="dining-deep" index={6} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <DiningDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="lounge-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="lounge-deep" index={7} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <LoungeDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="games-deep" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="games-deep" index={8} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <GamesDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="voices" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="voices" index={9} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <VoicesOfJos />
                   </SectionWrapper>
-                  <SectionWrapper id="location" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="location" index={10} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <LocationSection />
                   </SectionWrapper>
-                  <SectionWrapper id="cta" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="cta" index={11} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <FinalCTA />
                   </SectionWrapper>
-                  <SectionWrapper id="footer" className="relative w-full min-h-[100dvh] flex flex-col justify-center cinematic-section">
-                    <Footer setCurrentView={setCurrentView} />
-                  </SectionWrapper>
                 </div>
+
+                <SectionWrapper id="footer" index={12} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <Footer setCurrentView={setCurrentView} />
+                </SectionWrapper>
                 <ChatBot />
-              </div>
+              </motion.div>
             )}
             {(currentView === 'login' || currentView === 'admin') && (
               <div className="pt-16 sm:pt-20 min-h-screen">

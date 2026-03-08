@@ -1,50 +1,34 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { ScrollContext } from '../ScrollContext';
+import { SectionContext } from '../context/SectionContext';
 
 interface SectionWrapperProps {
   id: string;
   children: React.ReactNode;
   className?: string;
+  index: number;
 }
 
-export const SectionWrapper: React.FC<SectionWrapperProps> = ({ id, children, className }) => {
-  const { activeSectionId, setActiveSectionId } = useContext(ScrollContext);
-  const ref = useRef<HTMLDivElement>(null);
+export const SectionWrapper: React.FC<SectionWrapperProps> = ({ id, children, className, index }) => {
+  const { currentSectionIndex } = useContext(ScrollContext);
+  const isActive = currentSectionIndex === index;
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setActiveSectionId(id);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, [id, setActiveSectionId]);
-
-  const isActive = activeSectionId === id;
-
-  // Recursively add isActive prop to all children that are Reveal components
+  // Recursively add isActive prop to specific components (legacy support)
   const childrenWithProps = React.Children.map(children, (child) => {
-    if (React.isValidElement(child) && child.type && (child.type as any).name === 'Reveal') {
-      return React.cloneElement(child, { isActive } as any);
+    if (React.isValidElement(child)) {
+      const componentName = (child.type as any).displayName || (child.type as any).name;
+      if (['Hero', 'Reveal', 'ScrollReveal', 'ServicesGrid', 'TrustSection', 'LocationSection', 'FinalCTA', 'VoicesOfJos', 'WaterDeepDive', 'MarketDeepDive', 'BakeryDeepDive', 'DiningDeepDive', 'LoungeDeepDive', 'GamesDeepDive'].includes(componentName)) {
+        return React.cloneElement(child, { isActive } as any);
+      }
     }
     return child;
   });
 
   return (
-    <div ref={ref} id={id} className={className}>
-      {childrenWithProps}
-    </div>
+    <SectionContext.Provider value={{ index, isActive }}>
+      <div id={id} className={`cinematic-section ${className}`}>
+        {childrenWithProps}
+      </div>
+    </SectionContext.Provider>
   );
 };

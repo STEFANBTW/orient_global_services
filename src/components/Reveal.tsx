@@ -6,6 +6,8 @@ interface RevealProps {
   animation?: 'slide-up' | 'slide-in-right' | 'slide-from-left' | 'slide-from-right' | 'rotate-in' | string;
   delay?: string | number;
   className?: string;
+  style?: React.CSSProperties;
+  layout?: boolean | "position" | "size" | "preserve-aspect";
   threshold?: number;
   triggerOnce?: boolean;
   isActive?: boolean; // New prop
@@ -16,6 +18,8 @@ const Reveal: React.FC<RevealProps> = ({
   animation = 'slide-up',
   delay = 0,
   className = '',
+  style,
+  layout = false,
   threshold = 0.2,
   triggerOnce = false,
   isActive = true, // Default to true
@@ -38,7 +42,7 @@ const Reveal: React.FC<RevealProps> = ({
     visible: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: intenseDelay } 
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as any, delay: intenseDelay } 
     },
   };
 
@@ -48,6 +52,8 @@ const Reveal: React.FC<RevealProps> = ({
       initial="hidden"
       animate={isActive ? "visible" : "hidden"}
       className={className}
+      style={style}
+      layout={layout}
     >
       {children}
     </motion.div>
