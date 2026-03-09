@@ -1731,7 +1731,7 @@ const App: React.FC = () => {
       wheelAccumulator.current += e.deltaY;
 
       const isFast = dt < 80;
-      const threshold = isFast ? 450 : 850;
+      const threshold = isFast ? 585 : 1105;
 
       if (Math.abs(wheelAccumulator.current) >= threshold) {
         if (isScrolling.current && !isFast) return;
@@ -1767,7 +1767,7 @@ const App: React.FC = () => {
       lastWheelTime.current = now;
 
       const isFast = dt < 80;
-      const threshold = isFast ? 300 : 600;
+      const threshold = isFast ? 390 : 780;
 
       if (Math.abs(touchAccumulator.current) >= threshold) {
         if (isScrolling.current && !isFast) return;
