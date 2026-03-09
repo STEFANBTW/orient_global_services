@@ -73,7 +73,7 @@ const ScrollItem: React.FC<{ children: React.ReactNode; className?: string; inde
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ margin: "-20% 0% -20% 0%", once: false }}
-      transition={{ duration: 0.6, delay: index * 0.105, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.0735, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
       {children}
@@ -82,7 +82,7 @@ const ScrollItem: React.FC<{ children: React.ReactNode; className?: string; inde
 };
 
 // Text Reveal Component for High-End Typography
-export const TextReveal: React.FC<{ text: string; className?: string; delay?: number; stagger?: number }> = ({ text, className = "", delay = 0, stagger = 0.035 }) => {
+export const TextReveal: React.FC<{ text: string; className?: string; delay?: number; stagger?: number }> = ({ text, className = "", delay = 0, stagger = 0.0245 }) => {
   const words = text.split(" ");
   return (
     <span className={`inline-flex flex-wrap gap-x-[0.2em] ${className}`}>
@@ -297,7 +297,7 @@ const Navbar: React.FC<{
             <motion.div 
               initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
               animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-              transition={{ duration: 1.5, delay: isReady ? 3.4 : 0, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1.5, delay: isReady ? 2.9 : 0, ease: [0.76, 0, 0.24, 1] }}
               className={`flex items-center gap-2 sm:gap-3 cursor-pointer ${isMobile ? 'pl-2 pr-4 border-r border-white/10' : ''}`} onClick={() => { setCurrentView('home'); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center shadow-lg shadow-primary/20">
                 <span className="material-icons text-white text-lg sm:text-xl">diamond</span>
@@ -318,7 +318,7 @@ const Navbar: React.FC<{
                   <motion.button 
                     initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
                     animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-                    transition={{ duration: 1.5, delay: isReady ? 3.4 + ((i + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
+                    transition={{ duration: 1.5, delay: isReady ? 2.9 + ((i + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
                     key={link.name}
                     onMouseEnter={() => handleMouseEnter(link.name)}
                     onClick={() => {
@@ -348,7 +348,7 @@ const Navbar: React.FC<{
             <motion.div 
               initial={{ clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
               animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-              transition={{ duration: 1.5, delay: isReady ? 3.4 + ((navLinks.length + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1.5, delay: isReady ? 2.9 + ((navLinks.length + 1) * 0.1) : 0, ease: [0.76, 0, 0.24, 1] }}
               className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}>
               <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 dark:text-white text-slate-900">
                 <span className="material-icons text-sm sm:text-base">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
@@ -530,7 +530,7 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
             animate={isReady ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-            transition={{ duration: 1.8, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.8, delay: 5, ease: [0.16, 1, 0.3, 1] }}
             className="relative overflow-hidden inline-block py-1 px-2"
           >
             <span className="text-slate-900 dark:text-white font-black tracking-[0.4em] uppercase text-sm block drop-shadow-[0_0_12px_rgba(0,0,0,0.5)]">
@@ -542,15 +542,15 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
-              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
             >
               ELEVATE
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
-              transition={{ duration: 1.2, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-primary/90 via-primary to-primary/90"
+              transition={{ duration: 1.2, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              className="text-transparent bg-clip-text bg-[linear-gradient(to_right,rgba(242,158,13,0.45)_0%,rgba(242,158,13,1)_20%,rgba(242,158,13,1)_80%,rgba(242,158,13,0.45)_100%)]"
             >
               EVERYDAY.
             </motion.div>
@@ -561,7 +561,7 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 1.5, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.5, delay: 2.0, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10 px-6 py-4 rounded-2xl bg-white/10 dark:bg-transparent backdrop-blur-md dark:backdrop-blur-none border border-white/20 dark:border-transparent shadow-lg dark:shadow-none"
             >
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white/90 text-slate-950 max-w-4xl mx-auto font-light tracking-wide leading-relaxed drop-shadow-xl dark:drop-shadow-lg text-center">
@@ -780,11 +780,11 @@ const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
-        <RevealItem className="order-2 lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite" index={0} totalItems={7}>
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch w-full">
+        <RevealItem className="order-2 lg:order-1 relative h-full min-h-[400px] rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite" index={0} totalItems={7}>
           <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full" />
         </RevealItem>
-        <div className="order-1 lg:order-2 flex flex-col">
+        <div className="order-1 lg:order-2 flex flex-col justify-center">
           <RevealItem index={1} totalItems={7}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
           </RevealItem>
@@ -794,10 +794,10 @@ const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
           <RevealItem index={3} totalItems={7}>
             <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
           </RevealItem>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {['Locally Sourced Produce', 'Artisanal Plating', 'Curated Wine Pairings'].map((item, i) => (
               <RevealItem key={item} index={4 + i} totalItems={7}>
-                <div className="flex items-center gap-6 p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                <div className="flex items-center gap-6 p-3 rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
                   <span className="material-icons text-primary text-2xl">restaurant_menu</span>
                   <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{item}</span>
                 </div>
@@ -972,11 +972,70 @@ const GamesShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
   );
 };
 
+const VerticalFerrisCarousel: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const images = [
+    "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=2165&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden [perspective:1500px] bg-transparent">
+      {images.map((src, index) => {
+        let offset = index - activeIndex;
+        if (offset < -2) offset += images.length;
+        if (offset > 2) offset -= images.length;
+
+        // Calculate rotation based on offset (e.g., -65deg, 0deg, 65deg)
+        const rotateX = offset * -40; 
+        
+        // Push items out along the Z axis so they form a circle, then rotate them, then push the whole circle back
+        const radius = 400; // The radius of our "Ferris wheel"
+
+        const up = 15;
+        
+        // We want the active item (offset 0) to be at Z=0 relative to the container.
+        // If we just rotate and translateZ(radius), the active item will be at Z=radius.
+        // So we translate the whole container back by -radius.
+        
+        const scale = 1 - Math.abs(offset) * 0.2;
+        const opacity = offset === 0 ? 1 : Math.abs(offset) === 1 ? 0.6 : 0.2;
+        const zIndex = 10 - Math.abs(offset);
+
+        return (
+          <div
+            key={index}
+            className="absolute w-[85%] h-[60%] rounded-2xl overflow-hidden shadow-2xl transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+            style={{
+              transform: `translateZ(-${radius}px) rotateX(${rotateX}deg) translateZ(${radius}px) scale(${scale}) translateY(${up}px)`,
+              opacity,
+              zIndex,
+            }}
+          >
+            <img src={src} alt="Gaming Infrastructure" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
-        <div className="flex flex-col">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch w-full">
+        <div className="flex flex-col justify-center">
           <RevealItem index={0} totalItems={7}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Tech Ecosystem</span>
           </RevealItem>
@@ -986,10 +1045,10 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
           <RevealItem index={2} totalItems={7}>
             <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-8 font-medium">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
           </RevealItem>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map((spec, i) => (
               <RevealItem key={spec} index={3 + i} totalItems={7}>
-                <div className="flex items-center justify-between p-6 rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                <div className="flex items-center justify-between p-3 rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
                   <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-xs">{spec}</span>
                   <span className="material-icons text-primary text-xl">bolt</span>
                 </div>
@@ -997,9 +1056,9 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
             ))}
           </div>
         </div>
-        <RevealItem index={6} totalItems={7}>
-          <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
-            <ParallaxImage src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop" alt="Gaming Hardware" className="w-full h-full" />
+        <RevealItem index={6} totalItems={7} className="h-full min-h-[400px]">
+          <div className="relative h-full w-full rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+            <VerticalFerrisCarousel />
           </div>
         </RevealItem>
       </ScrollReveal>
@@ -1014,39 +1073,39 @@ const VoicesOfJos: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => 
     { name: 'Fatima A.', role: 'Foodie', text: "The jollof rice at the restaurant... honestly, it's the best I've had in years.", img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1974&auto=format&fit=crop" }
   ];
   return (
-    <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center h-screen">
+    <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center min-h-screen py-24 md:py-0">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(242,158,13,0.03),transparent_70%)] pointer-events-none" />
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col justify-center w-full">
+      <ScrollReveal isActive={isActive} className="w-full px-4 sm:px-8 md:px-12 lg:max-w-[75vw] xl:max-w-[67vw] mx-auto flex flex-col justify-center">
         <RevealItem index={0} totalItems={4}>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-black dark:text-white text-slate-900 mb-4 uppercase tracking-tighter leading-none">VOICES OF <br/><span className="text-primary">Jos</span></h2>
-            <p className="dark:text-gray-400 text-slate-500 font-bold text-sm uppercase tracking-[0.3em]">Real stories from our community.</p>
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-3 md:mb-4 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
+            <p className="dark:text-gray-400 text-slate-500 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em]">Real stories from our community.</p>
           </div>
         </RevealItem>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {reviews.map((rev, idx) => (
             <RevealItem key={rev.name} index={1 + idx} totalItems={4}>
-              <motion.div whileHover={{ y: -10 }} className="dark:bg-background-dark bg-white p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative h-full">
-                <div className="flex items-center gap-4 mb-8">
-                  <img src={rev.img} className="w-12 h-12 rounded-full border-2 border-primary/20 object-cover shadow-lg" alt={rev.name} />
+              <motion.div whileHover={{ y: -8 }} className="dark:bg-background-dark bg-white p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative h-full flex flex-col">
+                <div className="flex items-center gap-4 mb-6 md:mb-8">
+                  <img src={rev.img} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-primary/20 object-cover shadow-lg" alt={rev.name} />
                   <div>
-                    <h4 className="dark:text-white text-slate-900 font-black text-base uppercase tracking-tight">{rev.name}</h4>
-                    <p className="text-[9px] dark:text-gray-500 text-slate-400 uppercase font-black tracking-[0.2em] mt-0.5">{rev.role}</p>
+                    <h4 className="dark:text-white text-slate-900 font-black text-sm md:text-base uppercase tracking-tight">{rev.name}</h4>
+                    <p className="text-[8px] md:text-[9px] dark:text-gray-500 text-slate-400 uppercase font-black tracking-[0.2em] mt-0.5">{rev.role}</p>
                   </div>
                 </div>
-                <div className="dark:bg-zinc-800/50 bg-slate-50 rounded-2xl p-4 flex items-center gap-4 mb-6">
-                  <button className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-xl hover:bg-orange-600 transition-colors">
-                    <span className="material-icons text-xl">play_arrow</span>
+                <div className="dark:bg-zinc-800/50 bg-slate-50 rounded-2xl p-3 md:p-4 flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                  <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-xl hover:bg-orange-600 transition-colors">
+                    <span className="material-icons text-lg md:text-xl">play_arrow</span>
                   </button>
-                  <div className="flex gap-1.5 h-8 items-center flex-1">
+                  <div className="flex gap-1 md:gap-1.5 h-6 md:h-8 items-center flex-1 overflow-hidden">
                     {[...Array(15)].map((_, i) => (
                       <div key={i} className="w-1 bg-primary/40 rounded-full wave-bar" style={{ animationDelay: `${i * 0.1}s`, height: `${Math.random() * 100}%` }}></div>
                     ))}
                   </div>
-                  <span className="text-[10px] text-gray-500 font-mono font-bold">0:24</span>
+                  <span className="text-[9px] md:text-[10px] text-gray-500 font-mono font-bold">0:24</span>
                 </div>
-                <p className="dark:text-gray-300 text-slate-500 text-sm italic font-medium leading-relaxed">"{rev.text}"</p>
-                <span className="material-icons absolute top-6 right-6 text-primary/10 text-4xl">format_quote</span>
+                <p className="dark:text-gray-300 text-slate-500 text-xs md:text-sm italic font-medium leading-relaxed flex-grow">"{rev.text}"</p>
+                <span className="material-icons absolute top-4 right-4 md:top-6 md:right-6 text-primary/10 text-3xl md:text-4xl">format_quote</span>
               </motion.div>
             </RevealItem>
           ))}
@@ -1672,7 +1731,7 @@ const App: React.FC = () => {
       wheelAccumulator.current += e.deltaY;
 
       const isFast = dt < 80;
-      const threshold = isFast ? 304 : 592;
+      const threshold = isFast ? 450 : 850;
 
       if (Math.abs(wheelAccumulator.current) >= threshold) {
         if (isScrolling.current && !isFast) return;
@@ -1708,7 +1767,7 @@ const App: React.FC = () => {
       lastWheelTime.current = now;
 
       const isFast = dt < 80;
-      const threshold = isFast ? 203 : 423;
+      const threshold = isFast ? 300 : 600;
 
       if (Math.abs(touchAccumulator.current) >= threshold) {
         if (isScrolling.current && !isFast) return;
