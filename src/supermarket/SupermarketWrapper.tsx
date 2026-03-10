@@ -45,9 +45,9 @@ export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: Supermar
   return (
     <motion.nav 
       initial={{ y: -100 }}
-      animate={{ y: navHidden ? -100 : 0 }}
+      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
       transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
-      className="bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-12 sm:top-14 w-full z-40 shadow-lg"
+      className={`bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky ${isMobile ? 'top-0' : 'top-12 sm:top-14'} w-full z-40 shadow-lg`}
     >
       <div className="max-w-[1600px] mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-14">

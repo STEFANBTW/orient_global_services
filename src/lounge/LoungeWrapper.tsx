@@ -27,9 +27,9 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
   return (
     <motion.nav 
       initial={{ y: -100 }}
-      animate={{ y: navHidden ? -100 : 0 }}
+      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
       transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
-      className="sticky top-12 sm:top-14 w-full z-40 bg-black/90 backdrop-blur-md border-b border-white/5 h-12 px-2 sm:px-8 transition-all duration-300 shadow-lg"
+      className={`sticky ${isMobile ? 'top-0' : 'top-12 sm:top-14'} w-full z-40 bg-black/90 backdrop-blur-md border-b border-white/5 h-12 px-2 sm:px-8 transition-all duration-300 shadow-lg`}
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 group relative z-10 cursor-pointer shrink-0" onClick={() => onNavigate('home')}>

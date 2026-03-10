@@ -84,7 +84,7 @@ const Home: React.FC<{ onNavigate?: (p: any) => void }> = ({ onNavigate }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="inline-flex items-center justify-center px-5 py-1.5 mb-8 border border-blue-500/10 rounded-full bg-white/30 dark:bg-white/5 backdrop-blur-xl"
           >
             <span className="w-2 h-2 rounded-full bg-blue-500 mr-3 animate-pulse"></span>
@@ -94,7 +94,7 @@ const Home: React.FC<{ onNavigate?: (p: any) => void }> = ({ onNavigate }) => {
           <motion.h1 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             className="text-5xl md:text-[7rem] font-light tracking-tighter text-slate-900 dark:text-white mb-6 leading-[0.85]"
           >
             {heroBlock.title.split(' ').slice(0, -2).join(' ')} <br />

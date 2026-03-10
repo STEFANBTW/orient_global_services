@@ -20,9 +20,9 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
   return (
     <motion.nav 
       initial={{ y: -100 }}
-      animate={{ y: navHidden ? -100 : 0 }}
+      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
       transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
-      className="sticky top-12 sm:top-14 w-full z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-lg"
+      className={`sticky ${isMobile ? 'top-0' : 'top-12 sm:top-14'} w-full z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-lg`}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
         <div className="flex items-center justify-between h-16">
@@ -98,7 +98,7 @@ export const WaterApp: React.FC<{ currentPage: WaterPage, onNavigate: (p: WaterP
           initial={{ opacity: 0, filter: 'blur(10px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, filter: 'blur(10px)' }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           {renderPage()}
         </motion.div>

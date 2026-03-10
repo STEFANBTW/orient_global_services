@@ -45,7 +45,7 @@ interface RevealItemProps {
   entryDelay?: number; // New prop for delaying entry
 }
 
-export const RevealItem: React.FC<RevealItemProps> = ({ children, className = "", isActive: propIsActive, index = 0, stagger = 0.2, totalItems = 0, entryDelay = 0 }) => {
+export const RevealItem: React.FC<RevealItemProps> = ({ children, className = "", isActive: propIsActive, index = 0, stagger = 0.0735, totalItems = 0, entryDelay = 0 }) => {
   const { index: sectionIndex, isActive: contextIsActive } = useContext(SectionContext);
   const { currentSectionIndex, scrollDirection } = useContext(ScrollContext);
 
@@ -61,7 +61,7 @@ export const RevealItem: React.FC<RevealItemProps> = ({ children, className = ""
       y: pos === 'above' ? -100 : 100,
       filter: 'blur(10px)',
       transition: {
-        duration: 1.05,
+        duration: 0.6,
         ease: [0.22, 1, 0.36, 1] as any,
         delay: i * s
       }
@@ -71,7 +71,7 @@ export const RevealItem: React.FC<RevealItemProps> = ({ children, className = ""
       y: 0, 
       filter: 'blur(0px)',
       transition: { 
-        duration: 1.5, 
+        duration: 0.8, 
         ease: [0.22, 1, 0.36, 1] as any,
         delay: d + (i * s) // Base entry delay + stagger
       } 

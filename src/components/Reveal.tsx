@@ -37,7 +37,7 @@ const Reveal: React.FC<RevealProps> = ({
     hidden: { 
       opacity: 0, 
       y: 150, 
-      transition: { duration: 1.0, ease: "easeOut", delay: intenseDelay * 0.2 } 
+      transition: { duration: 0.6, ease: "easeOut", delay: intenseDelay * 0.2 } 
     }, 
     visible: { 
       opacity: 1, 

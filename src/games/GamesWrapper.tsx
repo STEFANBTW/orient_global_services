@@ -317,12 +317,21 @@ const OdysseyLink = ({ isActive, onClick }: { isActive: boolean, onClick: () => 
 };
 
 export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNavigate: (p: AppView) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentPage, onNavigate, localTheme, toggleLocalTheme }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <motion.nav 
       initial={{ y: -100 }}
-      animate={{ y: navHidden ? -100 : 0 }}
+      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
       transition={{ duration: navHidden ? 0.1 : 0.4, ease: "circOut" }}
-      className="sticky top-12 sm:top-14 w-full z-50 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-12 pointer-events-auto shadow-lg"
+      className={`sticky w-full z-50 ${isMobile ? 'top-0' : 'top-12 sm:top-14'} bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-12 pointer-events-auto shadow-lg`}
     >
       {/* Cyberpunk Top Accent Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
