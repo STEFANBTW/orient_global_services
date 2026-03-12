@@ -39,7 +39,7 @@ export const SectionWrapper: React.FC<SectionWrapperProps> = ({ id, children, cl
       <div 
         ref={ref}
         id={id} 
-        className={`cinematic-section ${className}`}
+        className={`cinematic-section snap-start ${className}`}
       >
         {children}
       </div>
