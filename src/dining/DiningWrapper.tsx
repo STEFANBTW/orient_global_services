@@ -20,11 +20,8 @@ export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, 
   }, []);
 
   return (
-    <motion.div
-      initial={{ y: -100 }}
-      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
-      transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
-      className={`sticky w-full z-40 ${isMobile ? 'top-0' : 'top-12 sm:top-14'} bg-black/90 backdrop-blur-md border-b border-white/10 h-12 sm:h-14 px-2 sm:px-4 shadow-lg`}
+    <div
+      className={`sticky w-full z-40 top-0 bg-black/90 backdrop-blur-md border-b border-white/10 h-12 sm:h-14 px-2 sm:px-4 shadow-lg`}
     >
       <div className="max-w-7xl mx-auto h-full flex items-center justify-between gap-2">
         <div className="flex-1 hidden sm:block"></div>
@@ -54,7 +51,7 @@ export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, 
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

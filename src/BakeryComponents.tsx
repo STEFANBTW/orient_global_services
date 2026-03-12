@@ -333,11 +333,8 @@ export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setV
   }, []);
 
   return (
-    <motion.div
-      initial={{ y: -100 }}
-      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
-      transition={{ duration: navHidden ? 0.1 : 0.4, ease: "easeOut" }}
-      className={`sticky w-full z-40 ${isMobile ? 'top-0' : 'top-12 sm:top-14'} bg-white/90 dark:bg-background-dark backdrop-blur-md border-b border-stone-200 dark:border-white/10 shadow-lg`}
+    <div
+      className={`sticky w-full z-40 top-0 bg-white/90 dark:bg-background-dark backdrop-blur-md border-b border-stone-200 dark:border-white/10 shadow-lg`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
@@ -372,7 +369,7 @@ export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setV
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

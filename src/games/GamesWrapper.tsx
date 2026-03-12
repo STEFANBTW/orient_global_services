@@ -327,11 +327,8 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
   }, []);
 
   return (
-    <motion.nav 
-      initial={{ y: -100 }}
-      animate={{ y: (isMobile || !navHidden) ? 0 : -100 }}
-      transition={{ duration: navHidden ? 0.1 : 0.4, ease: "circOut" }}
-      className={`sticky w-full z-50 ${isMobile ? 'top-0' : 'top-12 sm:top-14'} bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-12 pointer-events-auto shadow-lg`}
+    <nav 
+      className={`sticky w-full z-50 top-0 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-12 pointer-events-auto shadow-lg`}
     >
       {/* Cyberpunk Top Accent Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
@@ -382,7 +379,7 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
         </div>
 
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 

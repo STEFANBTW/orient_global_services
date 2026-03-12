@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 // ...
+import Lenis from 'lenis';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { BakeryApp, BakeryNav } from './src/BakeryComponents';
@@ -141,7 +142,6 @@ const ParallaxImage: React.FC<{ src: string; alt: string; className?: string }> 
   const { scrollContainerRef } = React.useContext(ScrollContext);
   const { scrollYProgress } = useScroll({
     target: ref,
-    container: scrollContainerRef || undefined,
     offset: ["start end", "end start"]
   });
   
@@ -160,32 +160,21 @@ const ParallaxImage: React.FC<{ src: string; alt: string; className?: string }> 
   );
 };
 
-let hasInitialAnimationPlayed = false;
-
 const Navbar: React.FC<{ 
   theme: 'dark' | 'light', 
   toggleTheme: () => void, 
-  currentView: string,
   setCurrentView: (v: any) => void, 
   scrolled: boolean, 
   navHidden: boolean,
   isSubpage?: boolean,
   isReady?: boolean,
+  skipAnimation?: boolean,
   setCurrentSectionIndex?: (i: number) => void
-}> = ({ theme, toggleTheme, currentView, setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, setCurrentSectionIndex }) => {
+}> = ({ theme, toggleTheme, setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, skipAnimation = false, setCurrentSectionIndex }) => {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    useEffect(() => {
-      if (isReady && !hasInitialAnimationPlayed) {
-        const timer = setTimeout(() => {
-          hasInitialAnimationPlayed = true;
-        }, 4000);
-        return () => clearTimeout(timer);
-      }
-    }, [isReady]);
 
     const handleMouseEnter = (tab: string) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -286,34 +275,32 @@ const Navbar: React.FC<{
       }
     ];
 
-    const isHome = currentView === 'home';
-    const shouldHideNav = isHome ? false : navHidden;
+    const isHomepage = !isSubpage;
 
     return (
-      <>
-        <motion.div 
-          animate={{ 
-            y: shouldHideNav ? (isMobile ? 128 : -128) : 0 
-          }}
-        transition={{ 
-          y: { duration: shouldHideNav ? 0.1 : 0.4, ease: "easeOut" }
+      <motion.div 
+        animate={{ 
+          y: (navHidden && !isHomepage) ? (isMobile ? 128 : -128) : 0 
         }}
-        className={`fixed z-[100] ${isMobile ? 'bottom-6 left-0 right-0 mx-auto w-[95%]' : 'top-0 left-0 w-full'}`}
+        transition={{ 
+          y: { duration: (navHidden && !isHomepage) ? 0.2 : 0.4, ease: "easeOut" }
+        }}
+        className={`fixed z-[100] ${isMobile ? (isHomepage ? 'bottom-6 left-0 right-0 mx-auto w-[95%]' : 'top-4 left-0 right-0 mx-auto w-[95%]') : 'top-0 left-0 w-full'}`}
       >
         {/* Main Nav Container */}
-        <nav className={`relative transition-all duration-200 flex items-center 
+        <nav className={`relative transition-all duration-300 flex items-center 
           ${isMobile 
-            ? `rounded-[40px] h-14 sm:h-16 px-4 sm:px-6 shadow-soft border transition-all duration-300 ${isHome ? 'bg-transparent border-transparent' : (isSubpage ? 'bg-white/10 backdrop-blur-md border-white/10' : (activeTab || mobileMenuOpen ? 'bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-black/5 dark:border-white/10' : 'bg-transparent border-transparent'))}` 
-            : `h-12 sm:h-14 px-6 sm:px-12 border-b transition-all duration-300 ${isHome ? 'bg-transparent border-transparent' : (isSubpage ? 'bg-white/10 backdrop-blur-md border-white/10' : (activeTab ? 'bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-black/5 dark:border-white/10' : 'bg-transparent border-transparent shadow-none'))}`
+            ? `rounded-[40px] h-14 sm:h-16 px-4 sm:px-6 ${isHomepage ? 'bg-transparent border-transparent' : 'shadow-soft bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border border-black/5 dark:border-white/10'}` 
+            : `h-12 sm:h-14 px-6 sm:px-12 transition-all duration-300 ${isHomepage ? (activeTab ? 'bg-white dark:bg-background-dark border-b border-black/5 dark:border-white/10' : 'bg-transparent border-transparent') : 'shadow-soft bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border-b border-black/5 dark:border-white/10'}`
           }`}
         >
           <div className={`${isMobile ? 'w-full flex items-center justify-between' : 'mx-auto w-full flex items-center justify-between'}`}>
             {/* Logo Section */}
             <motion.div 
-              initial={hasInitialAnimationPlayed ? { opacity: 0 } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-              animate={hasInitialAnimationPlayed ? { opacity: 1 } : (isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' })}
-              transition={hasInitialAnimationPlayed ? { duration: 0.5 } : { duration: 1.5, delay: isReady ? 2.9 : 0, ease: [0.22, 1, 0.36, 1] }}
-              className={`flex items-center gap-2 sm:gap-3 cursor-pointer ${isMobile ? 'pl-2 pr-4 border-r border-white/10' : ''}`} onClick={() => { setCurrentView('home'); if (setCurrentSectionIndex) setCurrentSectionIndex(0); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              initial={skipAnimation ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              transition={{ duration: 1.5, delay: skipAnimation ? 0 : (isReady ? 2.9 : 0), ease: [0.76, 0, 0.24, 1] }}
+              className={`flex items-center gap-2 sm:gap-3 cursor-pointer ${isMobile ? 'pl-2 pr-4 border-r border-white/10' : ''}`} onClick={() => { setCurrentView('home'); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center shadow-lg shadow-primary/20">
                 <span className="material-icons text-white text-lg sm:text-xl">diamond</span>
               </div>
@@ -331,16 +318,16 @@ const Navbar: React.FC<{
               >
                 {navLinks.map((link, i) => (
                   <motion.button 
-                    initial={hasInitialAnimationPlayed ? { opacity: 0 } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-                    animate={hasInitialAnimationPlayed ? { opacity: 1 } : (isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' })}
-                    transition={hasInitialAnimationPlayed ? { duration: 0.5 } : { duration: 1.5, delay: isReady ? 2.9 + ((i + 1) * 0.1) : 0, ease: [0.22, 1, 0.36, 1] }}
+                    initial={skipAnimation ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+                    animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+                    transition={{ duration: 1.5, delay: skipAnimation ? 0 : (isReady ? 2.9 + ((i + 1) * 0.1) : 0), ease: [0.76, 0, 0.24, 1] }}
                     key={link.name}
                     onMouseEnter={() => handleMouseEnter(link.name)}
                     onClick={() => {
                       setCurrentView(link.view as any);
                       document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`relative z-10 px-2 sm:px-3 h-full flex items-center justify-center transition-all duration-300 text-[clamp(0.75rem,1.1vw,0.9rem)] font-bold uppercase tracking-widest hover:text-primary dark:hover:text-white ${activeTab ? 'dark:text-gray-300 text-slate-600' : 'dark:text-white text-slate-900'}`}
+                    className={`relative z-10 px-2 sm:px-3 h-full flex items-center justify-center transition-all duration-300 text-[clamp(0.75rem,1.1vw,0.9rem)] font-bold uppercase tracking-widest hover:text-primary dark:hover:text-white ${scrolled ? 'dark:text-gray-300 text-slate-600' : 'dark:text-white text-slate-900'}`}
                   >
                     <div className="flex flex-col items-center group">
                       <motion.span whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 17 }} className="relative py-1 block">
@@ -361,9 +348,9 @@ const Navbar: React.FC<{
 
             {/* Actions Section */}
             <motion.div 
-              initial={hasInitialAnimationPlayed ? { opacity: 0 } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
-              animate={hasInitialAnimationPlayed ? { opacity: 1 } : (isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' })}
-              transition={hasInitialAnimationPlayed ? { duration: 0.5 } : { duration: 1.5, delay: isReady ? 2.9 + ((navLinks.length + 1) * 0.1) : 0, ease: [0.22, 1, 0.36, 1] }}
+              initial={skipAnimation ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
+              transition={{ duration: 1.5, delay: skipAnimation ? 0 : (isReady ? 2.9 + ((navLinks.length + 1) * 0.1) : 0), ease: [0.76, 0, 0.24, 1] }}
               className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}>
               <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 dark:text-white text-slate-900">
                 <span className="material-icons text-sm sm:text-base">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
@@ -397,7 +384,7 @@ const Navbar: React.FC<{
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               onMouseEnter={() => handleMouseEnter(activeTab)}
               onMouseLeave={() => handleMouseLeave()}
-              className={`absolute w-full border border-black/5 dark:border-white/10 backdrop-blur-xl shadow-[0_32px_64px_rgba(0,0,0,0.4)] z-[-1] overflow-hidden top-full left-0 rounded-none border-t-0 p-12 ${activeTab ? 'bg-white/95 dark:bg-zinc-900/95' : 'bg-transparent dark:bg-transparent'}`}
+              className={`absolute w-full border border-black/5 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.4)] z-[-1] overflow-hidden top-full left-0 rounded-none border-t-0 p-12 ${isHomepage ? 'bg-white dark:bg-background-dark' : 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px]'}`}
             >
               <div className="lg:max-w-[67vw] mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 sm:gap-24">
                 {(() => {
@@ -446,81 +433,79 @@ const Navbar: React.FC<{
               </div>
             </motion.div>
           )}
+
+          {(isMobile && mobileMenuOpen) && (
+            <motion.div 
+              initial={{ opacity: 0, y: isHomepage ? 20 : -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: isHomepage ? 20 : -20, scale: 0.95 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className={`absolute ${isHomepage ? 'bottom-20 left-0 w-full rounded-[2.5rem] p-6 bg-white dark:bg-background-dark fixed inset-0 h-[100dvh] z-50 overflow-y-auto' : 'top-20 left-0 w-full rounded-[2.5rem] p-6 bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border border-black/5 dark:border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] z-[-1] max-h-[70vh] overflow-y-auto'} flex flex-col gap-2`}
+            >
+              {isHomepage && (
+                <div className="flex justify-end mb-4">
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-full bg-black/5 dark:bg-white/5 text-slate-900 dark:text-white">
+                    <span className="material-icons">close</span>
+                  </button>
+                </div>
+              )}
+              {navLinks.map((link, linkIdx) => (
+                <motion.div 
+                  key={link.name} 
+                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: linkIdx * 0.05 }}
+                  className="flex flex-col"
+                >
+                  <button 
+                    onClick={() => setActiveTab(activeTab === link.name ? null : link.name)}
+                    className="flex items-center justify-between py-4 text-sm font-black uppercase tracking-widest dark:text-white text-slate-900 border-b border-black/5 dark:border-white/5"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="material-icons text-primary">{link.icon}</span>
+                      {link.name}
+                    </div>
+                    <span className="material-icons text-sm">{activeTab === link.name ? 'expand_less' : 'expand_more'}</span>
+                  </button>
+                  <AnimatePresence>
+                    {activeTab === link.name && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="py-4 grid grid-cols-2 gap-4">
+                          {link.menu.cols.map((col, idx) => (
+                            <div key={idx} className="space-y-3">
+                              <h4 className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{col.title}</h4>
+                              <ul className="space-y-2">
+                                {col.items.map((item, i) => (
+                                  <li key={i}>
+                                    <button 
+                                      onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        setActiveTab(null);
+                                        handleNavigation(link.view, item.toLowerCase().replace(/\s+/g, '-'));
+                                      }} 
+                                      className="text-xs font-bold dark:text-gray-300 text-slate-600 hover:text-primary transition-colors text-left"
+                                    >
+                                      {item}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
-
-      <AnimatePresence>
-        {(isMobile && mobileMenuOpen) && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 w-full h-full p-6 pt-20 pb-24 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl z-[110] overflow-y-auto no-scrollbar scrollbar-hide flex flex-col"
-          >
-            <div className="flex justify-between items-center mb-12">
-              <span className="text-primary font-black tracking-[0.3em] uppercase text-xs">Menu</span>
-              <button onClick={() => setMobileMenuOpen(false)} className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center">
-                <span className="material-icons text-primary">close</span>
-              </button>
-            </div>
-            {navLinks.map((link, linkIdx) => (
-              <motion.div 
-                key={link.name} 
-                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: linkIdx * 0.05 }}
-                className="flex flex-col"
-              >
-                <button 
-                  onClick={() => setActiveTab(activeTab === link.name ? null : link.name)}
-                  className="flex items-center justify-between py-4 text-sm font-black uppercase tracking-widest dark:text-white text-slate-900 border-b border-black/5 dark:border-white/5"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="material-icons text-primary">{link.icon}</span>
-                    {link.name}
-                  </div>
-                  <span className="material-icons text-sm">{activeTab === link.name ? 'expand_less' : 'expand_more'}</span>
-                </button>
-                <AnimatePresence>
-                  {activeTab === link.name && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="py-4 grid grid-cols-2 gap-4">
-                        {link.menu.cols.map((col, idx) => (
-                          <div key={idx} className="space-y-3">
-                            <h4 className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{col.title}</h4>
-                            <ul className="space-y-2">
-                              {col.items.map((item, i) => (
-                                <li key={i}>
-                                  <button 
-                                    onClick={() => {
-                                      setMobileMenuOpen(false);
-                                      setActiveTab(null);
-                                      handleNavigation(link.view, item.toLowerCase().replace(/\s+/g, '-'));
-                                    }} 
-                                    className="text-xs font-bold dark:text-gray-300 text-slate-600 hover:text-primary transition-colors text-left"
-                                  >
-                                    {item}
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
+    );
 };
 
 const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isActive = false }) => {
@@ -528,7 +513,6 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
   const { scrollContainerRef } = React.useContext(ScrollContext);
   const { scrollYProgress } = useScroll({
     target: ref,
-    container: scrollContainerRef || undefined,
     offset: ["start start", "end start"]
   });
   
@@ -554,10 +538,10 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
             animate={isReady ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-            transition={{ duration: 2.0, delay: 5, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 2.4, delay: 3.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative overflow-hidden inline-block py-1 px-2"
           >
-            <span className="text-slate-900 dark:text-white font-black tracking-[0.4em] uppercase text-sm block drop-shadow-[0_0_12px_rgba(0,0,0,0.55)]">
+            <span className="text-slate-900 dark:text-white font-black tracking-[0.4em] uppercase text-sm block drop-shadow-[0_0_12px_rgba(0,0,0,0.5)]">
               Welcome to Orient <span className="text-orange-400 dark:text-primary">Global</span>
             </span>
           </motion.div>
@@ -566,26 +550,26 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
-              transition={{ duration: 2.2, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 2.0, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
             >
               ELEVATE
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
-              transition={{ duration: 2.4, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-transparent bg-clip-text bg-[linear-gradient(to_right,rgba(242,158,13,0.495)_0%,rgba(242,158,13,1)_20%,rgba(242,158,13,1)_80%,rgba(242,158,13,0.495)_100%)]"
+              transition={{ duration: 2.0, delay: 1.8, ease: [0.16, 1, 0.3, 1] }}
+              className="text-transparent bg-clip-text bg-[linear-gradient(to_right,rgba(242,158,13,0.45)_0%,rgba(242,158,13,1)_20%,rgba(242,158,13,1)_80%,rgba(242,158,13,0.45)_100%)]"
             >
               EVERYDAY.
             </motion.div>
           </div>
 
           <div className="relative w-full flex justify-center">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.77)_0%,_rgba(255,255,255,0)_70%)] dark:hidden pointer-events-none -z-10 blur-xl scale-150" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.7)_0%,_rgba(255,255,255,0)_70%)] dark:hidden pointer-events-none -z-10 blur-xl scale-150" />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 2.0, delay: 2.0, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 2.0, delay: 2.6, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10 px-6 py-4 rounded-2xl bg-white/10 dark:bg-transparent backdrop-blur-md dark:backdrop-blur-none border border-white/20 dark:border-transparent shadow-lg dark:shadow-none"
             >
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white/90 text-slate-950 max-w-4xl mx-auto font-light tracking-wide leading-relaxed drop-shadow-xl dark:drop-shadow-lg text-center">
@@ -597,7 +581,7 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
       </div>
       
       <motion.div animate={{ y: [0, 20, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-24 z-20">
-        <div className="w-[1px] h-32 bg-gradient-to-b from-primary via-primary/[0.55] to-transparent mx-auto" />
+        <div className="w-[1px] h-32 bg-gradient-to-b from-primary via-primary/50 to-transparent mx-auto" />
       </motion.div>
     </div>
   );
@@ -667,26 +651,44 @@ const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 
 const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-        <div className="flex flex-col lg:order-2">
-          <RevealItem index={1} totalItems={7} className="order-1">
-            <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] mb-4 block">Artisanal Process</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6 leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="lg:hidden order-1 text-center w-full">
+          <RevealItem index={1} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] mb-2 block">Artisanal Process</span>
           </RevealItem>
-          
-          <RevealItem className="order-2 mb-6 sm:mb-0 lg:hidden" index={0} totalItems={7}>
-            <ParallaxImage src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" alt="Baking Process" className="rounded-3xl aspect-video border border-black/5 dark:border-white/10 shadow-elite" />
-          </RevealItem>
-
-          <RevealItem index={3} totalItems={7} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
+          <RevealItem index={2} totalItems={7}>
+            <h2 className="text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
           </RevealItem>
         </div>
-        
-        <RevealItem className="hidden lg:block lg:order-1" index={0} totalItems={7}>
-          <ParallaxImage src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" alt="Baking Process" className="rounded-3xl aspect-square border border-black/5 dark:border-white/10 shadow-elite" />
+        <RevealItem className="order-2 lg:order-1 w-full" index={0} totalItems={7}>
+          <div className="relative aspect-video lg:aspect-square max-h-[30vh] lg:max-h-none rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+            <ParallaxImage src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" alt="Baking Process" className="w-full h-full" />
+          </div>
         </RevealItem>
+        <div className="order-3 lg:order-2 flex flex-col w-full">
+          <div className="hidden lg:block">
+            <RevealItem index={1} totalItems={7}>
+              <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] mb-4 block">Artisanal Process</span>
+            </RevealItem>
+            <RevealItem index={2} totalItems={7}>
+              <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
+            </RevealItem>
+          </div>
+          <RevealItem index={3} totalItems={7}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium text-center lg:text-left">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
+          </RevealItem>
+          <ul className="space-y-3 lg:space-y-4">
+            {['Natural Sourdough Starters', 'Stone-Ground Flour', 'No Artificial Additives'].map((item, i) => (
+              <RevealItem key={item} index={4 + i} totalItems={7}>
+                <li className="flex items-center gap-3 lg:gap-4 dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs justify-center lg:justify-start">
+                  <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_15px_rgba(242,158,13,0.5)]" />
+                  {item}
+                </li>
+              </RevealItem>
+            ))}
+          </ul>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -727,30 +729,46 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 
 const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-        <div className="flex flex-col lg:order-1">
-          <RevealItem index={1} totalItems={5} className="order-1">
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Supply Chain</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6 leading-tight">INSTITUTIONAL <br/><span className="text-primary">Quality</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="lg:hidden order-1 text-center w-full">
+          <RevealItem index={0} totalItems={5}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-xs mb-2 block">Supply Chain</span>
           </RevealItem>
-          
-          <RevealItem index={4} totalItems={5} className="order-2 mb-6 sm:mb-0 lg:hidden">
-            <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
-              <ParallaxImage src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1974&auto=format&fit=crop" alt="Market Logistics" className="w-full h-full" />
-            </div>
-          </RevealItem>
-
-          <RevealItem index={3} totalItems={5} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
+          <RevealItem index={1} totalItems={5}>
+            <h2 className="text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">INSTITUTIONAL <br/><span className="text-primary">Quality</span></h2>
           </RevealItem>
         </div>
-        
-        <RevealItem index={4} totalItems={5} className="hidden lg:block lg:order-2">
-          <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+        <RevealItem index={4} totalItems={5} className="order-2 lg:order-2 w-full">
+          <div className="relative aspect-video lg:aspect-square max-h-[30vh] lg:max-h-none rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1974&auto=format&fit=crop" alt="Market Logistics" className="w-full h-full" />
           </div>
         </RevealItem>
+        <div className="order-3 lg:order-1 flex flex-col w-full">
+          <div className="hidden lg:block">
+            <RevealItem index={0} totalItems={5}>
+              <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Supply Chain</span>
+            </RevealItem>
+            <RevealItem index={1} totalItems={5}>
+              <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">INSTITUTIONAL <br/><span className="text-primary">Quality</span></h2>
+            </RevealItem>
+          </div>
+          <RevealItem index={2} totalItems={5}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium text-center lg:text-left">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
+          </RevealItem>
+          <RevealItem index={3} totalItems={5}>
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+              <div className="p-4 lg:p-6 rounded-2xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-center lg:text-left">
+                <h4 className="dark:text-white text-slate-900 font-black uppercase text-[10px] lg:text-xs tracking-widest mb-1 lg:mb-2">Cold Chain</h4>
+                <p className="dark:text-gray-500 text-slate-500 text-[10px] lg:text-xs font-medium">24/7 Temperature Monitoring</p>
+              </div>
+              <div className="p-4 lg:p-6 rounded-2xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-center lg:text-left">
+                <h4 className="dark:text-white text-slate-900 font-black uppercase text-[10px] lg:text-xs tracking-widest mb-1 lg:mb-2">Sourcing</h4>
+                <p className="dark:text-gray-500 text-slate-500 text-[10px] lg:text-xs font-medium">Direct from Global Producers</p>
+              </div>
+            </div>
+          </RevealItem>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -791,26 +809,44 @@ const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 
 const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch w-full">
-        <div className="flex flex-col justify-center lg:order-2">
-          <RevealItem index={1} totalItems={7} className="order-1">
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6 leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="lg:hidden order-1 text-center w-full">
+          <RevealItem index={1} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] mb-2 block">Chef's Philosophy</span>
           </RevealItem>
-          
-          <RevealItem className="order-2 mb-6 sm:mb-0 lg:hidden relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite" index={0} totalItems={7}>
-            <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full" />
-          </RevealItem>
-
-          <RevealItem index={3} totalItems={7} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
+          <RevealItem index={2} totalItems={7}>
+            <h2 className="text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
           </RevealItem>
         </div>
-        
-        <RevealItem className="hidden lg:block lg:order-1 relative h-full min-h-[300px] sm:min-h-[400px] rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite" index={0} totalItems={7}>
-          <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full" />
+        <RevealItem className="order-2 lg:order-1 w-full" index={0} totalItems={7}>
+          <div className="relative aspect-video lg:aspect-square max-h-[30vh] lg:max-h-none rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+            <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full" />
+          </div>
         </RevealItem>
+        <div className="order-3 lg:order-2 flex flex-col w-full">
+          <div className="hidden lg:block">
+            <RevealItem index={1} totalItems={7}>
+              <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
+            </RevealItem>
+            <RevealItem index={2} totalItems={7}>
+              <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
+            </RevealItem>
+          </div>
+          <RevealItem index={3} totalItems={7}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium text-center lg:text-left">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
+          </RevealItem>
+          <div className="space-y-2">
+            {['Locally Sourced Produce', 'Artisanal Plating', 'Curated Wine Pairings'].map((item, i) => (
+              <RevealItem key={item} index={4 + i} totalItems={7}>
+                <div className="flex items-center gap-4 lg:gap-6 p-2 lg:p-3 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft justify-center lg:justify-start">
+                  <span className="material-icons text-primary text-xl lg:text-2xl">restaurant_menu</span>
+                  <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs">{item}</span>
+                </div>
+              </RevealItem>
+            ))}
+          </div>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -845,30 +881,44 @@ const WaterShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
 
 const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-        <div className="flex flex-col lg:order-1">
-          <RevealItem index={1} totalItems={5} className="order-1">
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Technical Purity</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6 leading-tight">7-STEP <br/><span className="text-primary">Filtration</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="lg:hidden order-1 text-center w-full">
+          <RevealItem index={0} totalItems={5}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-xs mb-2 block">Technical Purity</span>
           </RevealItem>
-          
-          <RevealItem index={4} totalItems={5} className="order-2 mb-6 sm:mb-0 lg:hidden">
-            <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
-              <ParallaxImage src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2036&auto=format&fit=crop" alt="Water Laboratory" className="w-full h-full" />
-            </div>
-          </RevealItem>
-
-          <RevealItem index={3} totalItems={5} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
+          <RevealItem index={1} totalItems={5}>
+            <h2 className="text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">7-STEP <br/><span className="text-primary">Filtration</span></h2>
           </RevealItem>
         </div>
-        
-        <RevealItem index={4} totalItems={5} className="hidden lg:block lg:order-2">
-          <div className="relative aspect-video rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+        <RevealItem index={4} totalItems={5} className="order-2 lg:order-2 w-full">
+          <div className="relative aspect-video lg:aspect-square max-h-[30vh] lg:max-h-none rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <ParallaxImage src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2036&auto=format&fit=crop" alt="Water Laboratory" className="w-full h-full" />
           </div>
         </RevealItem>
+        <div className="order-3 lg:order-1 flex flex-col w-full">
+          <div className="hidden lg:block">
+            <RevealItem index={0} totalItems={5}>
+              <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Technical Purity</span>
+            </RevealItem>
+            <RevealItem index={1} totalItems={5}>
+              <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">7-STEP <br/><span className="text-primary">Filtration</span></h2>
+            </RevealItem>
+          </div>
+          <RevealItem index={2} totalItems={5}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium text-center lg:text-left">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
+          </RevealItem>
+          <RevealItem index={3} totalItems={5}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+              {['Reverse Osmosis', 'UV Sterilization', 'Ozone Treatment', 'Mineral Balancing'].map(step => (
+                <div key={step} className="flex items-center gap-4 p-3 lg:p-4 rounded-2xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                  <span className="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]" />
+                  <span className="dark:text-white text-slate-900 text-[10px] font-black uppercase tracking-widest">{step}</span>
+                </div>
+              ))}
+            </div>
+          </RevealItem>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -917,26 +967,44 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 
 const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-        <div className="flex flex-col lg:order-2">
-          <RevealItem index={1} totalItems={8} className="order-1">
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Mixology Art</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6">THE NIGHTSCAPE <span className="dark:text-white/40 text-slate-400 italic">ETHOS.</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="lg:hidden order-1 text-center w-full">
+          <RevealItem index={0} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] mb-2 block">Atmosphere</span>
           </RevealItem>
-          
-          <RevealItem className="order-2 mb-6 sm:mb-0 lg:hidden relative aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-3xl" index={0} totalItems={8}>
-            <ParallaxImage src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop" alt="Mixology" className="w-full h-full" />
-          </RevealItem>
-
-          <RevealItem index={3} totalItems={8} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8">Our mixologists are alchemists, blending local botanicals with premium spirits to create unique sensory experiences. The Nightscape Lounge is more than a bar; it's a sanctuary for the discerning.</p>
+          <RevealItem index={1} totalItems={7}>
+            <h2 className="text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">SONIC <br/><span className="text-primary">Architecture</span></h2>
           </RevealItem>
         </div>
-        
-        <RevealItem className="hidden lg:block lg:order-1 relative aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-3xl" index={0} totalItems={8}>
-          <ParallaxImage src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop" alt="Mixology" className="w-full h-full" />
+        <RevealItem index={6} totalItems={7} className="order-2 lg:order-2 w-full">
+          <div className="relative aspect-video lg:aspect-square max-h-[30vh] lg:max-h-none rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+            <ParallaxImage src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop" alt="Lounge Atmosphere" className="w-full h-full" />
+          </div>
         </RevealItem>
+        <div className="order-3 lg:order-1 flex flex-col w-full">
+          <div className="hidden lg:block">
+            <RevealItem index={0} totalItems={7}>
+              <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Atmosphere</span>
+            </RevealItem>
+            <RevealItem index={1} totalItems={7}>
+              <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">SONIC <br/><span className="text-primary">Architecture</span></h2>
+            </RevealItem>
+          </div>
+          <RevealItem index={2} totalItems={7}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium text-center lg:text-left">The lounge is acoustically treated to provide perfect sound isolation. Our resident DJs curate soundscapes that evolve through the night, paired with our signature mixology program.</p>
+          </RevealItem>
+          <div className="space-y-2">
+            {['Void Acoustics Sound System', 'Custom Lighting Rig', 'VIP Concierge'].map((item, i) => (
+              <RevealItem key={item} index={3 + i} totalItems={7}>
+                <div className="flex items-center justify-between p-2 lg:p-3 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                  <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs">{item}</span>
+                  <span className="material-icons text-primary text-lg lg:text-xl">graphic_eq</span>
+                </div>
+              </RevealItem>
+            ))}
+          </div>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -1030,61 +1098,35 @@ const VerticalFerrisCarousel: React.FC = () => {
 
 const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
-    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-[85vh] sm:h-screen">
-      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full">
-        <div className="flex flex-col lg:order-1">
-          <RevealItem index={0} totalItems={7} className="order-1">
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Tech Ecosystem</span>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 sm:mb-6 leading-tight">ZERO LAG <br/><span className="text-primary">Infrastructure</span></h2>
+    <div className="flex flex-col justify-center px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-screen">
+      <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-16 items-center w-full max-h-[90vh] justify-center">
+        <div className="order-1 lg:order-1 flex flex-col w-full text-center lg:text-left">
+          <RevealItem index={0} totalItems={7}>
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] lg:text-sm mb-2 lg:mb-4 block">Tech Ecosystem</span>
           </RevealItem>
-          
-          <RevealItem index={6} totalItems={7} className="order-2 h-full min-h-[300px] sm:min-h-[400px] mb-6 sm:mb-0 lg:hidden">
-            <div className="relative h-full w-full rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
-              <VerticalFerrisCarousel />
-            </div>
+          <RevealItem index={1} totalItems={7}>
+            <h2 className="text-3xl lg:text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-4 lg:mb-6 leading-tight">ZERO LAG <br/><span className="text-primary">Infrastructure</span></h2>
           </RevealItem>
-
-          <RevealItem index={2} totalItems={7} className="order-3">
-            <p className="text-sm sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
+          <RevealItem index={2} totalItems={7}>
+            <p className="text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-relaxed mb-6 lg:mb-8 font-medium">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
           </RevealItem>
+          <div className="space-y-2">
+            {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map((spec, i) => (
+              <RevealItem key={spec} index={3 + i} totalItems={7}>
+                <div className="flex items-center justify-between p-2 lg:p-3 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft">
+                  <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs">{spec}</span>
+                  <span className="material-icons text-primary text-lg lg:text-xl">bolt</span>
+                </div>
+              </RevealItem>
+            ))}
+          </div>
         </div>
-        
-        <RevealItem index={6} totalItems={7} className="hidden lg:block lg:order-2 h-full min-h-[300px] sm:min-h-[400px]">
-          <div className="relative h-full w-full rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+        <RevealItem index={6} totalItems={7} className="order-2 lg:order-2 w-full h-[30vh] lg:h-full lg:min-h-[400px]">
+          <div className="relative h-full w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
             <VerticalFerrisCarousel />
           </div>
         </RevealItem>
       </ScrollReveal>
-    </div>
-  );
-};
-
-const MobileSlider: React.FC<{ items: any[]; renderItem: (item: any, index: number) => React.ReactNode }> = ({ items, renderItem }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 3700);
-    return () => clearInterval(interval);
-  }, [isPaused, items.length]);
-
-  return (
-    <div className="relative overflow-hidden w-full" onClick={() => setIsPaused(!isPaused)}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentIndex}
-          initial={{ x: '100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '-100%' }}
-          transition={{ duration: 0.5 }}
-          className="w-full"
-        >
-          {renderItem(items[currentIndex], currentIndex)}
-        </motion.div>
-      </AnimatePresence>
     </div>
   );
 };
@@ -1095,52 +1137,44 @@ const VoicesOfJos: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => 
     { name: 'David O.', role: 'Gamer', text: "The internet speed at the gaming lounge is insane. No lag at all.", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop" },
     { name: 'Fatima A.', role: 'Foodie', text: "The jollof rice at the restaurant... honestly, it's the best I've had in years.", img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1974&auto=format&fit=crop" }
   ];
-  const renderReview = (rev: any, idx: number) => (
-    <motion.div whileHover={{ y: -8 }} className="dark:bg-background-dark bg-white p-4 md:p-6 rounded-2xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative h-full flex flex-col">
-      <div className="flex items-center gap-3 mb-4">
-        <img src={rev.img} className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-primary/20 object-cover shadow-lg" alt={rev.name} />
-        <div>
-          <h4 className="dark:text-white text-slate-900 font-black text-xs md:text-sm uppercase tracking-tight">{rev.name}</h4>
-          <p className="text-[7px] md:text-[8px] dark:text-gray-500 text-slate-400 uppercase font-black tracking-[0.2em] mt-0.5">{rev.role}</p>
-        </div>
-      </div>
-      <div className="dark:bg-zinc-800/50 bg-slate-50 rounded-xl p-2 md:p-3 flex items-center gap-2 md:gap-3 mb-3">
-        <button className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-xl hover:bg-orange-600 transition-colors">
-          <span className="material-icons text-sm md:text-lg">play_arrow</span>
-        </button>
-        <div className="flex gap-1 h-4 md:h-6 items-center flex-1 overflow-hidden">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="w-0.5 bg-primary/40 rounded-full wave-bar" style={{ animationDelay: `${i * 0.1}s`, height: `${Math.random() * 100}%` }}></div>
-          ))}
-        </div>
-        <span className="text-[8px] md:text-[9px] text-gray-500 font-mono font-bold">0:24</span>
-      </div>
-      <p className="dark:text-gray-300 text-slate-500 text-[10px] md:text-xs italic font-medium leading-relaxed flex-grow">"{rev.text}"</p>
-      <span className="material-icons absolute top-2 right-2 md:top-4 md:right-4 text-primary/10 text-2xl md:text-3xl">format_quote</span>
-    </motion.div>
-  );
   return (
-    <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center h-[80vh] sm:h-screen py-12 md:py-0">
+    <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center min-h-screen py-24 md:py-0">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(242,158,13,0.03),transparent_70%)] pointer-events-none" />
       <ScrollReveal isActive={isActive} className="w-full px-4 sm:px-8 md:px-12 lg:max-w-[75vw] xl:max-w-[67vw] mx-auto flex flex-col justify-center">
         <RevealItem index={0} totalItems={4}>
-          <div className="text-center mb-6">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-2 md:mb-3 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-3 md:mb-4 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
+            <p className="dark:text-gray-400 text-slate-500 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em]">Real stories from our community.</p>
           </div>
         </RevealItem>
-        <div className="sm:hidden mb-6">
-          <MobileSlider items={reviews} renderItem={renderReview} />
-        </div>
-        <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {reviews.map((rev, idx) => (
             <RevealItem key={rev.name} index={1 + idx} totalItems={4}>
-              {renderReview(rev, idx)}
+              <motion.div whileHover={{ y: -8 }} className="dark:bg-background-dark bg-white p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:border-primary/50 transition-all group shadow-soft hover:shadow-elite relative h-full flex flex-col">
+                <div className="flex items-center gap-4 mb-6 md:mb-8">
+                  <img src={rev.img} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-primary/20 object-cover shadow-lg" alt={rev.name} />
+                  <div>
+                    <h4 className="dark:text-white text-slate-900 font-black text-sm md:text-base uppercase tracking-tight">{rev.name}</h4>
+                    <p className="text-[8px] md:text-[9px] dark:text-gray-500 text-slate-400 uppercase font-black tracking-[0.2em] mt-0.5">{rev.role}</p>
+                  </div>
+                </div>
+                <div className="dark:bg-zinc-800/50 bg-slate-50 rounded-2xl p-3 md:p-4 flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                  <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white shadow-xl hover:bg-orange-600 transition-colors">
+                    <span className="material-icons text-lg md:text-xl">play_arrow</span>
+                  </button>
+                  <div className="flex gap-1 md:gap-1.5 h-6 md:h-8 items-center flex-1 overflow-hidden">
+                    {[...Array(15)].map((_, i) => (
+                      <div key={i} className="w-1 bg-primary/40 rounded-full wave-bar" style={{ animationDelay: `${i * 0.1}s`, height: `${Math.random() * 100}%` }}></div>
+                    ))}
+                  </div>
+                  <span className="text-[9px] md:text-[10px] text-gray-500 font-mono font-bold">0:24</span>
+                </div>
+                <p className="dark:text-gray-300 text-slate-500 text-xs md:text-sm italic font-medium leading-relaxed flex-grow">"{rev.text}"</p>
+                <span className="material-icons absolute top-4 right-4 md:top-6 md:right-6 text-primary/10 text-3xl md:text-4xl">format_quote</span>
+              </motion.div>
             </RevealItem>
           ))}
         </div>
-        <RevealItem index={4} totalItems={4}>
-            <p className="text-center dark:text-gray-400 text-slate-500 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em]">Real stories from our community.</p>
-        </RevealItem>
       </ScrollReveal>
     </section>
   );
@@ -1164,7 +1198,6 @@ const MagneticCard: React.FC<{
   const { scrollContainerRef } = React.useContext(ScrollContext);
   const { scrollYProgress } = useScroll({
     target: ref,
-    container: scrollContainerRef || undefined,
     offset: ["start end", "end start"]
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
@@ -1304,50 +1337,42 @@ const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =>
     { name: "Global Standards", icon: "public", desc: "Imported hardware and premium ingredients sourced from world-class partners." }
   ];
 
-  const renderCert = (cert: any, i: number) => (
-    <div className="p-4 md:p-6 rounded-2xl bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft group hover:border-primary/30 transition-all duration-700 relative overflow-hidden h-full">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-[40px] rounded-full group-hover:bg-primary/10 transition-colors duration-500" />
-      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-        <span className="material-icons text-primary text-2xl">{cert.icon}</span>
-      </div>
-      <h3 className="text-lg font-black dark:text-white text-slate-900 uppercase mb-2 tracking-tight leading-none">{cert.name}</h3>
-      <p className="dark:text-gray-400 text-slate-600 leading-relaxed font-medium text-[10px] md:text-xs">{cert.desc}</p>
-    </div>
-  );
-
   return (
-    <section className="flex flex-col justify-center px-6 relative overflow-hidden bg-transparent border-t border-black/5 dark:border-white/5 items-center h-[80vh] sm:h-screen py-12 md:py-0">
+    <section className="flex flex-col justify-center px-6 relative overflow-hidden bg-transparent border-t border-black/5 dark:border-white/5 items-center h-screen">
       <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_right,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
       <ScrollReveal isActive={isActive} className="lg:max-w-[67vw] mx-auto flex flex-col justify-center w-full">
-        <div className="text-center mb-6">
+        <div className="text-center mb-16">
           <RevealItem index={0} totalItems={6}>
-            <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] mb-2 block">
+            <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
               The Standard of Trust
             </span>
           </RevealItem>
           <RevealItem index={1} totalItems={6}>
-            <h2 className="text-2xl sm:text-4xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-4">
+            <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-6">
               UNCOMPROMISING <br/><span className="text-primary">Quality</span>
             </h2>
           </RevealItem>
+          <RevealItem index={2} totalItems={6}>
+            <p className="text-base dark:text-gray-400 text-slate-600 leading-relaxed font-medium max-w-2xl mx-auto">
+              We don't just meet standards; we set them. Orient Global operates under strict international compliance protocols, ensuring that every product and service delivers safety, quality, and reliability.
+            </p>
+          </RevealItem>
         </div>
         
-        <div className="sm:hidden mb-6">
-          <MobileSlider items={certifications} renderItem={renderCert} />
-        </div>
-        <div className="hidden sm:grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {certifications.map((cert, i) => (
             <RevealItem key={cert.name} index={3 + i} totalItems={6}>
-              {renderCert(cert, i)}
+              <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft group hover:border-primary/30 transition-all duration-700 relative overflow-hidden h-full">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[60px] rounded-full group-hover:bg-primary/10 transition-colors duration-500" />
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                  <span className="material-icons text-primary text-3xl">{cert.icon}</span>
+                </div>
+                <h3 className="text-xl font-black dark:text-white text-slate-900 uppercase mb-4 tracking-tight leading-none">{cert.name}</h3>
+                <p className="dark:text-gray-400 text-slate-600 leading-relaxed font-medium text-sm">{cert.desc}</p>
+              </div>
             </RevealItem>
           ))}
         </div>
-
-        <RevealItem index={2} totalItems={6}>
-          <p className="text-xs sm:text-base dark:text-gray-400 text-slate-600 leading-relaxed font-medium max-w-2xl mx-auto text-center">
-            We don't just meet standards; we set them. Orient Global operates under strict international compliance protocols, ensuring that every product and service delivers safety, quality, and reliability.
-          </p>
-        </RevealItem>
       </ScrollReveal>
     </section>
   );
@@ -1425,7 +1450,7 @@ const Footer: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView
   };
 
   return (
-    <footer className="h-screen bg-slate-50 dark:bg-background-dark dark:text-white text-slate-900 border-t border-black/5 dark:border-white/10 relative flex flex-col justify-center">
+    <footer className="min-h-screen lg:h-screen py-20 lg:py-0 bg-slate-50 dark:bg-background-dark dark:text-white text-slate-900 border-t border-black/5 dark:border-white/10 relative flex flex-col justify-center">
       <div className="lg:max-w-[67vw] mx-auto px-4 md:px-12 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           <div className="col-span-1 lg:col-span-2">
@@ -1725,9 +1750,12 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
 const App: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ container: scrollContainerRef });
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
-
+  const [scrolled, setScrolled] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
+  const lastScrollY = React.useRef(0);
   const [globalTheme, setGlobalTheme] = useState<'dark' | 'light'>('light');
   const [divisionThemes, setDivisionThemes] = useState<Record<string, 'dark' | 'light'>>({
     home: 'light', login: 'dark', admin: 'dark', bakery: 'dark',
@@ -1743,19 +1771,16 @@ const App: React.FC = () => {
   const [waterPage, setWaterPage] = useState<WaterPage>('home');
   const [loungePage, setLoungePage] = useState<LoungePage>('home');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [navHidden, setNavHidden] = useState(false);
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
-  const lastScrollY = React.useRef(0);
-  const isScrolling = React.useRef(false);
-  const wheelAccumulator = React.useRef(0);
-  const lastWheelTime = React.useRef(0);
-  const touchAccumulator = React.useRef(0);
-  const lastTouchY = React.useRef(0);
   const sectionCount = 13; // Total sections in home view
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // --- NATIVE SCROLL SNAPPING LOGIC ---
   useEffect(() => {
     const container = document.getElementById('main-scroll-container');
     if (!container) return;
@@ -1764,9 +1789,17 @@ const App: React.FC = () => {
       if (!container) return;
       const currentScrollY = container.scrollTop;
       setScrolled(currentScrollY > 50);
-      setNavHidden(currentScrollY > lastScrollY.current && currentScrollY > 100);
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setScrollDirection('down');
+        setNavHidden(true);
+      } else {
+        setScrollDirection('up');
+        setNavHidden(false);
+      }
       lastScrollY.current = currentScrollY;
     };
+
     container.addEventListener('scroll', handleNativeScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleNativeScroll);
   }, [currentView]);
@@ -1835,57 +1868,59 @@ const App: React.FC = () => {
         <AnimatePresence>
             {isLoading && <Preloader onComplete={() => setIsLoading(false)} theme={globalTheme} />}
         </AnimatePresence>
+        {/* Outer wrapper requires h-[100dvh] and overflow-hidden for the snap container to work securely */}
         <div className="bg-white dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
-          {/* Background is now simple white/dark as per user request */}
           
+          {/* Main Scroll Container with Native Snap Classes */}
           <div ref={scrollContainerRef} className={`fixed inset-0 w-full h-full bg-transparent overflow-y-auto ${currentView === 'home' ? 'snap-y snap-mandatory scroll-smooth' : ''} no-scrollbar`} id="main-scroll-container">
             <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId, currentSectionIndex, setCurrentSectionIndex, scrollDirection, setScrollDirection }}>
             {currentView === 'home' && (
               <div className="relative w-full">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} setCurrentSectionIndex={setCurrentSectionIndex} />
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} />
 
-                <SectionWrapper id="hero" index={0} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                <SectionWrapper id="hero" index={0} className="relative z-20 w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                   <Hero isReady={!isLoading} isActive={currentSectionIndex === 0} />
                 </SectionWrapper>
                 
                 <div className="relative z-10 bg-transparent">
-                  <SectionWrapper id="services" index={1} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="services" index={1} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                       <ServicesGrid setCurrentView={setCurrentView} />
                   </SectionWrapper>
-                  <SectionWrapper id="trust" index={2} className="relative w-full !h-[85vh] sm:h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="trust" index={2} className="relative w-full !h-[85vh] sm:h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                       <TrustSection />
                   </SectionWrapper>
-                  <SectionWrapper id="water-deep" index={3} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="water-deep" index={3} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                       <WaterDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="market-deep" index={4} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="market-deep" index={4} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                       <MarketDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="bakery-deep" index={5} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="bakery-deep" index={5} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <BakeryDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="dining-deep" index={6} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="dining-deep" index={6} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <DiningDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="lounge-deep" index={7} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="lounge-deep" index={7} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <LoungeDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="games-deep" index={8} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="games-deep" index={8} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <GamesDeepDive />
                   </SectionWrapper>
-                  <SectionWrapper id="voices" index={9} className="relative w-full !h-[85vh] sm:h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="voices" index={9} className="relative w-full !h-[85vh] sm:h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <VoicesOfJos />
                   </SectionWrapper>
-                  <SectionWrapper id="location" index={10} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
+                  <SectionWrapper id="location" index={10} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
                     <LocationSection />
                   </SectionWrapper>
-                  <SectionWrapper id="cta-footer" index={11} className="relative w-full cinematic-section no-scrollbar" noSnap>
-                    <div className="flex flex-col justify-center py-12">
-                      <FinalCTA />
-                    </div>
-                    <Footer setCurrentView={setCurrentView} />
+                  <SectionWrapper id="cta" index={11} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
+                    <FinalCTA />
                   </SectionWrapper>
                 </div>
+
+                <SectionWrapper id="footer" index={12} className="relative z-20 w-full min-h-screen lg:h-[100dvh] flex flex-col justify-center cinematic-section snap-start shrink-0">
+                  <Footer setCurrentView={setCurrentView} />
+                </SectionWrapper>
                 <ChatBot />
               </div>
             )}
@@ -1896,8 +1931,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'bakery' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} localTheme={divisionThemes['bakery']} toggleLocalTheme={() => toggleLocalTheme('bakery')} />
                   <div className="pt-12">
                     <BakeryApp currentView={bakeryView} />
@@ -1908,8 +1943,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'supermarket' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} localTheme={divisionThemes['supermarket']} toggleLocalTheme={() => toggleLocalTheme('supermarket')} />
                   <div className="pt-12">
                     <SupermarketApp activePage={supermarketPage} setActivePage={setSupermarketPage} isSmartPasteOpen={isSmartPasteOpen} setIsSmartPasteOpen={setIsSmartPasteOpen} />
@@ -1920,8 +1955,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'dining' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} localTheme={divisionThemes['dining']} toggleLocalTheme={() => toggleLocalTheme('dining')} />
                   <div className="pt-12">
                     <DiningApp currentView={diningView} />
@@ -1932,8 +1967,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'games' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} localTheme={divisionThemes['games']} toggleLocalTheme={() => toggleLocalTheme('games')} />
                   <div className="pt-12">
                     <GamesApp currentPage={gamesPage} onNavigate={setGamesPage} />
@@ -1944,8 +1979,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'water' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} localTheme={divisionThemes['water']} toggleLocalTheme={() => toggleLocalTheme('water')} />
                   <div className="pt-12">
                     <WaterApp currentPage={waterPage} onNavigate={setWaterPage} />
@@ -1956,8 +1991,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'lounge' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} localTheme={divisionThemes['lounge']} toggleLocalTheme={() => toggleLocalTheme('lounge')} />
                   <div className="pt-12">
                     <LoungeApp currentPage={loungePage} onNavigate={setLoungePage} />
@@ -1968,8 +2003,8 @@ const App: React.FC = () => {
             )}
             {currentView === 'about' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} currentView={currentView} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage />
-                <div className="pt-0 sm:pt-14 pb-20 sm:pb-0">
+                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <div className="pt-12 sm:pt-14">
                   <About setCurrentView={setCurrentView} />
                   <Footer setCurrentView={setCurrentView} />
                 </div>
