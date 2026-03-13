@@ -44,10 +44,10 @@ export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: Supermar
 
   return (
     <nav 
-      className={`bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 w-full z-40 shadow-lg`}
+      className={`bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 w-full z-40 shadow-lg h-[76px] lg:h-20`}
     >
-      <div className="max-w-[1600px] mx-auto px-2 sm:px-4">
-        <div className="flex items-center justify-between h-14">
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 h-full">
+        <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-1 mr-2 sm:mr-6 shrink-0 cursor-pointer" onClick={() => setActivePage('Home')}>
              <motion.span 
                whileHover={{ rotate: 180 }}

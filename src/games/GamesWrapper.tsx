@@ -328,7 +328,7 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
 
   return (
     <nav 
-      className={`sticky w-full z-50 top-0 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-12 pointer-events-auto shadow-lg`}
+      className={`sticky w-full z-50 top-0 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-16 sm:h-20 pointer-events-auto shadow-lg`}
     >
       {/* Cyberpunk Top Accent Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>

@@ -26,7 +26,7 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
 
   return (
     <nav 
-      className={`sticky top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-white/5 h-12 px-2 sm:px-8 transition-all duration-300 shadow-lg`}
+      className={`sticky top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-white/5 h-16 sm:h-20 px-2 sm:px-8 transition-all duration-300 shadow-lg`}
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 group relative z-10 cursor-pointer shrink-0" onClick={() => onNavigate('home')}>
@@ -37,7 +37,7 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
           </div>
         </div>
         
-        <div className="flex items-center gap-4 sm:gap-8 overflow-x-auto no-scrollbar px-2">
+        <div className="flex items-center gap-2 sm:gap-8 flex-nowrap justify-center px-1 scale-90 sm:scale-100">
           {navItems.map((item) => (
             <button
               key={item.id}

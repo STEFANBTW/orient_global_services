@@ -19,10 +19,10 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
 
   return (
     <nav 
-      className={`sticky top-0 w-full z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-lg`}
+      className={`sticky top-0 w-full z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-lg h-[86px]`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 h-full">
+        <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-4 cursor-pointer group shrink-0" onClick={() => onNavigate('home')}>
             <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-500">
               <span className="material-icons text-blue-500 text-xl font-light">water_drop</span>
@@ -32,7 +32,7 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
             </span>
           </div>
           
-          <div className="hidden md:flex items-center space-x-12">
+          <div className="flex items-center space-x-8 sm:space-x-12 overflow-x-auto no-scrollbar px-4 flex-grow justify-center">
             {[
               { id: 'home', label: 'Home' },
               { id: 'process', label: 'Process' },

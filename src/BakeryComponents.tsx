@@ -334,12 +334,12 @@ export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setV
 
   return (
     <div
-      className={`sticky w-full z-40 top-0 bg-white/90 dark:bg-background-dark backdrop-blur-md border-b border-stone-200 dark:border-white/10 shadow-lg`}
+      className={`sticky w-full z-40 top-0 bg-white/90 dark:bg-background-dark backdrop-blur-md border-b border-stone-200 dark:border-white/10 shadow-lg h-16 sm:h-20`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-12">
-          <div className="flex-1"></div>
-          <div className="flex items-center justify-center space-x-4 sm:space-x-8 overflow-x-auto no-scrollbar px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        <div className="flex items-center justify-between h-full">
+          <div className="flex-1 hidden sm:block"></div>
+          <div className="flex items-center justify-center space-x-4 sm:space-x-8 overflow-x-auto no-scrollbar px-4 flex-grow">
             {[
               { id: 'home', label: 'Bakery' },
               { id: 'architect', label: 'The Architect' },
@@ -360,7 +360,7 @@ export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setV
               </button>
             ))}
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end shrink-0">
             {toggleLocalTheme && (
               <button onClick={toggleLocalTheme} className="p-1.5 rounded-full bg-stone-200 dark:bg-white/10 hover:bg-stone-300 dark:hover:bg-white/20 transition-colors text-stone-600 dark:text-stone-300">
                 <span className="material-icons text-sm">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>

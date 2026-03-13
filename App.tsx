@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 // ...
 import Lenis from 'lenis';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, animate } from 'framer-motion';
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { BakeryApp, BakeryNav } from './src/BakeryComponents';
 import { SupermarketApp, SupermarketNav, SupermarketPage } from './src/supermarket/SupermarketWrapper';
@@ -223,57 +223,99 @@ const Navbar: React.FC<{
     const navLinks = [
       { name: 'Bakery', view: 'bakery', icon: 'bakery_dining', 
         menu: {
-          cols: [
-            { title: 'Products', items: ['Artisan Breads', 'French Pastries', 'Custom Cakes'] },
-            { title: 'Services', items: ['Wholesale', 'Catering', 'Subscription'] }
+          navigation: [
+            { name: 'Menu', id: 'bakery-deep' },
+            { name: 'Wholesale', id: 'bakery-deep' },
+            { name: 'Custom Orders', id: 'bakery-deep' }
+          ],
+          highlights: [
+            { title: 'Artisanal Heritage', detail: 'Traditional European techniques' },
+            { title: '48-Hour Science', detail: 'Cold fermentation for complex flavor' },
+            { title: 'Sourdough Starters', detail: 'Natural, house-grown cultures' }
           ]
         }
       },
       { name: 'Market', view: 'supermarket', icon: 'storefront',
         menu: {
-          cols: [
-            { title: 'Shop', items: ['Fresh Produce', 'Global Spices', 'Organic Dairy'] },
-            { title: 'Tools', items: ['Smart Paste', 'Daily Deals', 'Store Map'] }
+          navigation: [
+            { name: 'Fresh Produce', id: 'market-deep' },
+            { name: 'Global Spices', id: 'market-deep' },
+            { name: 'Organic Dairy', id: 'market-deep' }
+          ],
+          highlights: [
+            { title: 'Smart Logistics', detail: 'Real-time inventory tracking' },
+            { title: 'Global Sourcing', detail: 'Direct from sustainable farms' },
+            { title: 'Daily Deals', detail: 'Exclusive member-only offers' }
           ]
         }
       },
       { name: 'Dining', view: 'dining', icon: 'restaurant',
         menu: {
-          cols: [
-            { title: 'Menu', items: ['Traditional', 'Continental', 'Wine List'] },
-            { title: 'Booking', items: ['Reservations', 'Private Dining', 'Delivery'] }
+          navigation: [
+            { name: 'Traditional', id: 'dining-deep' },
+            { name: 'Continental', id: 'dining-deep' },
+            { name: 'Wine List', id: 'dining-deep' }
+          ],
+          highlights: [
+            { title: 'Chef Table', detail: 'Private culinary experiences' },
+            { title: 'Farm to Fork', detail: 'Locally sourced ingredients' },
+            { title: 'Sommelier Choice', detail: 'Expertly curated pairings' }
           ]
         }
       },
       { name: 'Games', view: 'games', icon: 'sports_esports',
         menu: {
-          cols: [
-            { title: 'Arena', items: ['FIFA Arena', 'CODM Zone', 'VR Pods'] },
-            { title: 'Events', items: ['Tournaments', 'Leaderboards', 'Hardware'] }
+          navigation: [
+            { name: 'FIFA Arena', id: 'games-deep' },
+            { name: 'CODM Zone', id: 'games-deep' },
+            { name: 'VR Pods', id: 'games-deep' }
+          ],
+          highlights: [
+            { title: 'Pro Tournaments', detail: 'Weekly competitive events' },
+            { title: 'Next-Gen Hardware', detail: 'Latest consoles and PCs' },
+            { title: 'Global Leaderboards', detail: 'Track your ranking live' }
           ]
         }
       },
       { name: 'Water', view: 'water', icon: 'water_drop',
         menu: {
-          cols: [
-            { title: 'Quality', items: ['7-Step Process', 'Lab Reports', 'Sustainability'] },
-            { title: 'Orders', items: ['Home Delivery', 'Bulk Supply', 'Logistics'] }
+          navigation: [
+            { name: '7-Step Process', id: 'water-deep' },
+            { name: 'Lab Reports', id: 'water-deep' },
+            { name: 'Home Delivery', id: 'water-deep' }
+          ],
+          highlights: [
+            { title: 'Purity Standard', detail: 'Exceeding global benchmarks' },
+            { title: 'Eco-Packaging', detail: 'Sustainable bottling solutions' },
+            { title: 'Bulk Supply', detail: 'Corporate and event logistics' }
           ]
         }
       },
       { name: 'Lounge', view: 'lounge', icon: 'nightlife',
         menu: {
-          cols: [
-            { title: 'Experience', items: ['The Lab', 'Visualizer', 'Concierge'] },
-            { title: 'Access', items: ['Membership', 'Booking', 'Events'] }
+          navigation: [
+            { name: 'The Lab', id: 'lounge-deep' },
+            { name: 'Visualizer', id: 'lounge-deep' },
+            { name: 'Concierge', id: 'lounge-deep' }
+          ],
+          highlights: [
+            { title: 'VIP Membership', detail: 'Exclusive lounge access' },
+            { title: 'Event Booking', detail: 'Private corporate gatherings' },
+            { title: 'Curated Sound', detail: 'Bespoke audio experiences' }
           ]
         }
       },
       { name: 'About', view: 'about', icon: 'info',
         menu: {
-          cols: [
-            { title: 'Company', items: ['Our Story', 'Mission', 'Contact'] },
-            { title: 'Community', items: ['Careers', 'Impact', 'News'] }
+          navigation: [
+            { name: 'Our Story', id: 'hero' },
+            { name: 'Mission', id: 'hero' },
+            { name: 'Contact', id: 'footer' }
+          ],
+          highlights: [
+            { title: 'Corporate HQ', detail: 'Amanda Plaza, Rayfield' },
+            { title: 'Careers', detail: 'Join the Orient Global team' },
+            { title: 'Impact', detail: 'Community development initiatives' }
           ]
         }
       }
@@ -390,37 +432,66 @@ const Navbar: React.FC<{
               onMouseLeave={() => handleMouseLeave()}
               className={`absolute w-full border border-black/5 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.4)] z-[-1] overflow-hidden top-full left-0 rounded-none border-t-0 p-12 ${isHomepage ? 'bg-white dark:bg-background-dark' : 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px]'}`}
             >
-              <div className="lg:max-w-[67vw] mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 sm:gap-24">
+              <div className="lg:max-w-[67vw] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
                 {(() => {
                   const activeLink = navLinks.find(l => l.name === activeTab);
                   if (!activeLink) return null;
                   
-                  return activeLink.menu.cols.map((col, idx) => (
-                    <div key={idx} className="space-y-6">
-                      <motion.h4 
-                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-                        className="text-primary font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3"
-                      >
-                        {col.title}
-                      </motion.h4>
-                      <ul className="space-y-4">
-                        {col.items.map((item, i) => (
-                          <motion.li 
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                          >
-                            <button 
-                              onClick={() => handleNavigation(activeLink.view, item.toLowerCase().replace(/\s+/g, '-'))} 
-                              className="text-lg sm:text-xl font-medium dark:text-white/90 text-slate-800 hover:text-primary dark:hover:text-white transition-all hover:translate-x-2 flex items-center gap-3 group"
+                  return (
+                    <>
+                      {/* Pane 1: Strategic Routing */}
+                      <div className="space-y-8">
+                        <motion.h4 
+                          initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+                          className="text-primary font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3"
+                        >
+                          Strategic Navigation
+                        </motion.h4>
+                        <ul className="space-y-5">
+                          {activeLink.menu.navigation.map((item, i) => (
+                            <motion.li 
+                              key={i}
+                              initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
                             >
-                              <span className="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                              {item}
-                            </button>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </div>
-                  ));
+                              <button 
+                                onClick={() => handleNavigation(activeLink.view, item.id)} 
+                                className="text-xl sm:text-2xl font-black dark:text-white/90 text-slate-800 hover:text-primary dark:hover:text-white transition-all hover:translate-x-3 flex items-center gap-4 group uppercase tracking-tight"
+                              >
+                                <span className="w-3 h-3 rounded-full bg-primary/20 group-hover:bg-primary transition-all duration-500 scale-75 group-hover:scale-100" />
+                                {item.name}
+                              </button>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Pane 2: Division Highlights */}
+                      <div className="space-y-8 lg:border-l lg:border-white/10 lg:pl-16">
+                        <motion.h4 
+                          initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                          className="text-primary font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3"
+                        >
+                          Division Insights
+                        </motion.h4>
+                        <div className="space-y-8">
+                          {activeLink.menu.highlights.map((highlight, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}
+                              className="group cursor-default"
+                            >
+                              <h5 className="text-sm font-black dark:text-white text-slate-900 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">
+                                {highlight.title}
+                              </h5>
+                              <p className="text-xs dark:text-gray-500 text-slate-400 font-medium leading-relaxed">
+                                {highlight.detail}
+                              </p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  );
                 })()}
               </div>
 
@@ -494,28 +565,32 @@ const Navbar: React.FC<{
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="py-4 grid grid-cols-2 gap-4">
-                          {link.menu.cols.map((col, idx) => (
-                            <div key={idx} className="space-y-3">
-                              <h4 className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{col.title}</h4>
-                              <ul className="space-y-2">
-                                {col.items.map((item, i) => (
-                                  <li key={i}>
-                                    <button 
-                                      onClick={() => {
-                                        setMobileMenuOpen(false);
-                                        setActiveTab(null);
-                                        handleNavigation(link.view, item.toLowerCase().replace(/\s+/g, '-'));
-                                      }} 
-                                      className="text-xs font-bold dark:text-gray-300 text-slate-600 hover:text-primary transition-colors text-left"
-                                    >
-                                      {item}
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
+                        <div className="py-4 space-y-6">
+                          <div className="space-y-4">
+                            <h4 className="text-primary font-black text-[10px] uppercase tracking-[0.2em] border-b border-primary/10 pb-2">Navigation</h4>
+                            {link.menu.navigation.map((item, i) => (
+                              <button 
+                                key={i}
+                                onClick={() => {
+                                  setMobileMenuOpen(false);
+                                  setActiveTab(null);
+                                  handleNavigation(link.view, item.id);
+                                }}
+                                className="block w-full text-left text-sm font-bold dark:text-white/80 text-slate-700 uppercase tracking-widest"
+                              >
+                                {item.name}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="space-y-4">
+                            <h4 className="text-primary font-black text-[10px] uppercase tracking-[0.2em] border-b border-primary/10 pb-2">Insights</h4>
+                            {link.menu.highlights.map((highlight, i) => (
+                              <div key={i} className="space-y-1">
+                                <h5 className="text-[10px] font-black dark:text-white text-slate-900 uppercase tracking-widest">{highlight.title}</h5>
+                                <p className="text-[9px] dark:text-gray-500 text-slate-400 font-medium">{highlight.detail}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -580,7 +655,7 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
               initial={{ opacity: 0, y: 100 }}
               animate={isReady ? { opacity: 0.7, y: 0 } : { opacity: 0, y: 100 }}
               transition={{ duration: 2.0, delay: 1.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-transparent bg-clip-text bg-[linear-gradient(to_right,rgba(242,158,13,0.45)_0%,rgba(242,158,13,1)_20%,rgba(242,158,13,1)_80%,rgba(242,158,13,0.45)_100%)]"
+              className="text-transparent bg-clip-text bg-[linear-gradient(to_right,rgba(255,120,0,0.45)_0%,rgba(255,120,0,1)_20%,rgba(255,120,0,1)_80%,rgba(255,120,0,0.45)_100%)]"
             >
               EVERYDAY.
             </motion.div>
@@ -609,35 +684,80 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
   );
 };
 
-const FinalCTA: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
+const FinalCTA: React.FC<{ isActive?: boolean; setCurrentView?: (v: any) => void }> = ({ isActive = false, setCurrentView }) => {
+  const quickLinks = [
+    { name: 'Golden Crust (Bakery)', id: 'bakery-deep' },
+    { name: 'Orient Market', id: 'market-deep' },
+    { name: 'The Lounge', id: 'lounge-deep' },
+    { name: 'Dining', id: 'dining-deep' },
+    { name: 'Water', id: 'water-deep' },
+    { name: 'Games', id: 'games-deep' }
+  ];
+
+  const handleLinkClick = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative flex flex-col justify-center bg-transparent border-t border-black/5 dark:border-white/5 items-center h-full w-full">
-      <div className="w-[90dvw] h-[75dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="content-container relative z-10 text-center w-full flex flex-col justify-center h-full">
-          <RevealItem index={0} totalItems={4}>
-            <div className="flex flex-col items-center mb-12 group">
+          <RevealItem index={0} totalItems={5}>
+            <div className="flex flex-col items-center mb-4 md:mb-12 group">
               <span className="text-primary font-black uppercase tracking-[0.6em] text-[12px] relative">
                 The New Standard of Excellence
               </span>
             </div>
           </RevealItem>
 
-          <RevealItem index={1} totalItems={4}>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-6 leading-[0.8] uppercase tracking-tighter">
+          <RevealItem index={1} totalItems={5}>
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-2 md:mb-6 leading-[0.8] uppercase tracking-tighter">
               ORIENT<br />
               <span className="text-primary">Global</span>
             </h2>
           </RevealItem>
 
-          <RevealItem index={2} totalItems={4}>
+          <RevealItem index={2} totalItems={5}>
             <p className="text-sm md:text-base dark:text-gray-400 text-slate-500 max-w-xl mx-auto leading-relaxed font-medium mb-8">
               Ready to experience the future of Jos? Join us at the flagship destination where every detail is engineered for perfection.
             </p>
           </RevealItem>
 
-          <RevealItem index={3} totalItems={4}>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-6 py-3 bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-[0_10px_20px_rgba(242,158,13,0.3)] hover:scale-105 hover:shadow-[0_15px_30px_rgba(242,158,13,0.4)] transition-all duration-500">Visit Us Today</button>
+          <RevealItem index={3} totalItems={5}>
+            <div className="flex flex-wrap justify-center gap-4 mb-16">
+              <button 
+                onClick={() => handleLinkClick('location')}
+                className="px-6 py-3 bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-[0_10px_20px_rgba(242,158,13,0.3)] hover:scale-105 hover:shadow-[0_15px_30px_rgba(242,158,13,0.4)] transition-all duration-500"
+              >
+                Visit Us Today
+              </button>
+            </div>
+          </RevealItem>
+
+          <RevealItem index={4} totalItems={5}>
+            <div className="pt-12 border-t border-black/5 dark:border-white/5 w-full max-w-3xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {quickLinks.map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => handleLinkClick(link.id)}
+                    className="group flex flex-col items-center gap-2 transition-all duration-300"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] dark:text-gray-500 text-slate-400 group-hover:text-primary transition-colors">
+                      {link.name}
+                    </span>
+                    <div className="h-[1px] w-0 bg-primary group-hover:w-full transition-all duration-500" />
+                  </button>
+                ))}
+              </div>
+              <div className="mt-12 flex justify-center items-center gap-6 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+                <span className="text-[9px] font-black uppercase tracking-[0.5em] dark:text-white text-slate-900">Corporate Headquarters</span>
+                <div className="w-1 h-1 rounded-full bg-primary" />
+                <span className="text-[9px] font-black uppercase tracking-[0.5em] dark:text-white text-slate-900">Lifestyle Division</span>
+              </div>
             </div>
           </RevealItem>
         </ScrollReveal>
@@ -649,7 +769,7 @@ const FinalCTA: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
 const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
     <section id="bakery" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal>
             <span className="text-primary font-bold tracking-[0.5em] uppercase text-[10px] mb-4 block">The Bakery</span>
@@ -663,7 +783,7 @@ const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
             </button>
           </Reveal>
         </div>
-        <div className="md:w-1/2 grid grid-cols-1 gap-8">
+        <div className="md:w-1/2 grid grid-cols-1 gap-2 md:gap-8">
           <Reveal animation="slide-from-right">
             <ParallaxImage src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1926&auto=format&fit=crop" alt="Golden Crust Croissants" className="rounded-3xl h-[50vh] border border-black/5 dark:border-white/5 shadow-elite" />
           </Reveal>
@@ -676,9 +796,9 @@ const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="bakery-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[75dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
               <span className="text-primary font-black tracking-[0.5em] uppercase text-[10px] md:text-xs mb-1 block">Artisanal Process</span>
             </RevealItem>
@@ -686,12 +806,12 @@ const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">THE SCIENCE OF <br/><span className="text-primary">Fermentation</span></h2>
             </RevealItem>
           </div>
-          <RevealItem className="order-2 lg:order-1 w-full shrink-0 mb-3 lg:mb-0" index={2} totalItems={7}>
+          <RevealItem className="order-2 lg:order-1 w-full shrink-0 mb-1 lg:mb-0" index={2} totalItems={7}>
             <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
               <ParallaxImage src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop" alt="Baking Process" className="w-full h-full object-cover" />
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.5em] uppercase text-sm mb-4 block">Artisanal Process</span>
@@ -723,7 +843,7 @@ const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
 const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
     <section id="market" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal>
             <span className="text-primary font-bold tracking-[0.5em] uppercase text-[10px] mb-4 block">The Market</span>
@@ -737,7 +857,7 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
             </button>
           </Reveal>
         </div>
-        <div className="md:w-1/2 grid grid-cols-2 gap-4">
+        <div className="md:w-1/2 grid grid-cols-2 gap-1 md:gap-4">
           <Reveal animation="slide-from-left" className="col-span-2">
             <ParallaxImage src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop" alt="Supermarket Wide" className="rounded-3xl h-[35vh] border border-black/5 dark:border-white/5 shadow-elite" />
           </Reveal>
@@ -756,9 +876,9 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="market-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[65dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={5}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1 block">Supply Chain</span>
             </RevealItem>
@@ -766,12 +886,12 @@ const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">INSTITUTIONAL <br/><span className="text-primary">Quality</span></h2>
             </RevealItem>
           </div>
-          <RevealItem index={2} totalItems={5} className="order-2 lg:order-2 w-full shrink-0 mb-3 lg:mb-0">
+          <RevealItem index={2} totalItems={5} className="order-2 lg:order-2 w-full shrink-0 mb-1 lg:mb-0">
             <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
               <ParallaxImage src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1974&auto=format&fit=crop" alt="Market Logistics" className="w-full h-full object-cover" />
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={5}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Supply Chain</span>
@@ -811,7 +931,7 @@ const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
 const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
     <section id="restaurant" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal delay="delay-100">
             <span className="text-primary font-bold tracking-[0.3em] uppercase text-sm mb-4 block">The Restaurant</span>
@@ -844,9 +964,9 @@ const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="dining-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[75dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1 block">Chef's Philosophy</span>
             </RevealItem>
@@ -854,12 +974,12 @@ const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">FUSION OF <br/><span className="text-primary">Heritage</span></h2>
             </RevealItem>
           </div>
-          <RevealItem className="order-2 lg:order-1 w-full shrink-0 mb-3 lg:mb-0" index={2} totalItems={7}>
+          <RevealItem className="order-2 lg:order-1 w-full shrink-0 mb-1 lg:mb-0" index={2} totalItems={7}>
             <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
               <ParallaxImage src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop" alt="Chef at Work" className="w-full h-full object-cover" />
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
@@ -891,7 +1011,7 @@ const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
 const WaterShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
     <section id="water" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal>
             <span className="text-primary font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Orient Water</span>
@@ -918,9 +1038,9 @@ const WaterShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
 const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="water-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[65dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={5}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1 block">Technical Purity</span>
             </RevealItem>
@@ -928,12 +1048,12 @@ const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">7-STEP <br/><span className="text-primary">Filtration</span></h2>
             </RevealItem>
           </div>
-          <RevealItem index={2} totalItems={5} className="order-2 lg:order-2 w-full shrink-0 mb-3 lg:mb-0">
+          <RevealItem index={2} totalItems={5} className="order-2 lg:order-2 w-full shrink-0 mb-1 lg:mb-0">
             <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
               <ParallaxImage src="https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2036&auto=format&fit=crop" alt="Water Laboratory" className="w-full h-full object-cover" />
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={5}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Technical Purity</span>
@@ -972,7 +1092,7 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
             <h3 className="text-5xl md:text-6xl font-serif dark:text-white text-slate-900 italic font-light tracking-tight leading-none">Curated <br/><span className="not-italic font-display font-black dark:text-gray-500 text-slate-400 uppercase tracking-tighter">Experiences</span></h3>
           </Reveal>
         </div>
-        <div className="flex flex-col md:flex-row items-center gap-16">
+        <div className="flex flex-col md:flex-row items-center gap-5 md:gap-16">
           <div className="w-full md:w-1/2">
             <Reveal animation="slide-from-left">
               <ParallaxImage src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=2069&auto=format&fit=crop" alt="Lounge Experience" className="rounded-3xl aspect-[4/5] border border-black/5 dark:border-white/10 shadow-elite" />
@@ -1006,9 +1126,9 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="lounge-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[70dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1 block">Atmosphere</span>
             </RevealItem>
@@ -1016,12 +1136,12 @@ const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">SONIC <br/><span className="text-primary">Architecture</span></h2>
             </RevealItem>
           </div>
-          <RevealItem index={6} totalItems={7} className="order-2 lg:order-2 w-full shrink-0 mb-3 lg:mb-0">
+          <RevealItem index={6} totalItems={7} className="order-2 lg:order-2 w-full shrink-0 mb-1 lg:mb-0">
             <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto w-full rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
               <ParallaxImage src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop" alt="Lounge Atmosphere" className="w-full h-full object-cover" />
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Atmosphere</span>
@@ -1053,7 +1173,7 @@ const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
 const GamesShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurrentView }) => {
   return (
     <section id="games" className="flex flex-col justify-center px-4 md:px-12 lg:max-w-[67vw] mx-auto dark:bg-background-dark bg-white transition-colors duration-500 relative items-center h-screen">
-      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="lg:max-w-[67vw] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-16 items-center">
         <div className="md:w-1/2">
           <Reveal>
             <span className="text-primary font-bold tracking-[0.3em] uppercase text-sm mb-4 block">The Arena</span>
@@ -1139,9 +1259,9 @@ const VerticalFerrisCarousel: React.FC = () => {
 const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="games-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] h-[80dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-3">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
+          <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-xs mb-1 block">Games Ecosystem</span>
             </RevealItem>
@@ -1149,7 +1269,7 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
               <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">ZERO LAG <br/><span className="text-primary">Infrastructure</span></h2>
             </RevealItem>
           </div>
-          <div className="order-2 lg:order-1 flex flex-col w-full overflow-hidden flex-1 justify-center">
+          <div className="order-2 lg:order-1 flex flex-col w-full overflow-hidden ">
             <div className="hidden lg:block mb-6 lg:mb-8">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Games Ecosystem</span>
@@ -1189,24 +1309,33 @@ const PeekingSlider: React.FC<{
   interval?: number;
   className?: string;
   cardWidth?: string;
-}> = ({ items, renderItem, className = "", cardWidth = "w-[80%]" }) => {
+}> = ({ items, renderItem, className = "", cardWidth = "w-[85%]" }) => {
+  const stepDuration = 5; // Seconds per card cycle
+  
   return (
-    <div className={`relative w-full overflow-hidden md:hidden ${className}`}>
-      <motion.div
-        className="flex gap-4 w-fit"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          duration: items.length * 6, // Smooth "river" flow speed
-          ease: "linear",
-          repeat: Infinity,
-        }}
-      >
-        {[...items, ...items].map((item, i) => (
-          <div key={i} className={`${cardWidth} shrink-0`}>
-            {renderItem(item, i % items.length, true)}
-          </div>
-        ))}
-      </motion.div>
+    <div className={`relative w-full overflow-hidden md:hidden h-full ${className}`}>
+      {items.map((item, i) => (
+        <motion.div
+          key={i}
+          className={`absolute top-0 left-1/2 h-full ${cardWidth}`}
+          style={{ x: "-50%" }}
+          initial={{ x: "150%", opacity: 0 }}
+          animate={{
+            x: ["150%", "-50%", "-60%", "-250%"],
+            opacity: [0, 1, 1, 0],
+          }}
+          transition={{
+            duration: stepDuration,
+            times: [0, 0.15, 0.95, 1],
+            ease: ["circOut", "linear", "circIn"],
+            repeat: Infinity,
+            repeatDelay: (items.length - 1) * stepDuration,
+            delay: i * stepDuration,
+          }}
+        >
+          {renderItem(item, i, true)}
+        </motion.div>
+      ))}
     </div>
   );
 };
@@ -1221,11 +1350,11 @@ const VoicesOfJos: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => 
   return (
     <section className="flex flex-col justify-center bg-transparent border-y border-black/5 dark:border-white/5 transition-colors duration-500 relative overflow-hidden items-center h-full w-full">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(242,158,13,0.03),transparent_70%)] pointer-events-none" />
-      <div className="w-[90dvw] h-[80dvh] lg:w-full lg:h-auto lg:max-w-[75vw] xl:max-w-[67vw] mx-auto flex flex-col justify-center">
+      <div className="w-[90dvw] lg:max-w-[75vw] xl:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col justify-center">
           <RevealItem index={0} totalItems={4} className="shrink-0">
-            <div className="text-center mb-6 md:mb-12">
-              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-2 md:mb-4 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
+            <div className="text-center mb-2 md:mb-12">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-1 md:mb-4 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
               <p className="dark:text-gray-400 text-slate-500 font-bold text-[10px] sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em]">Real stories from our community.</p>
             </div>
           </RevealItem>
@@ -1371,18 +1500,18 @@ const ServicesGrid: React.FC<{ setCurrentView: (v: any) => void; isActive?: bool
 
   return (
     <section className="relative z-30 bg-transparent h-full w-full flex flex-col justify-center px-0 lg:px-8 items-center mt-0 sm:mt-0">
-      <div className="w-[90dvw] h-[80dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col items-center justify-center">
+      <div className="w-[90dvw] min-h-[75dvh] max-h-[80dvh] h-auto lg:w-full lg:min-h-0 lg:max-h-none lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col items-center justify-center">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col items-center justify-center">
           <RevealItem className="text-center w-full shrink-0" index={0}>
             <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 sm:mb-4 block mt-4 lg:mt-0">
               Bespoke Services
             </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mx-auto mb-4 sm:mb-8">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mx-auto mb-1 sm:mb-8">
               FOR THOSE WHO DEMAND <span className="dark:text-white/40 text-slate-300 italic">EXCELLENCE.</span>
             </h2>
           </RevealItem>
 
-          <div className="grid grid-cols-2 grid-rows-4 lg:grid-cols-4 lg:grid-rows-3 gap-2 sm:gap-4 mx-auto w-full lg:w-[55vw] flex-1 lg:h-[60vh] lg:min-h-[500px] pb-4 lg:pb-0">
+          <div className="grid grid-cols-2 grid-rows-4 lg:grid-cols-4 lg:grid-rows-3 gap-1 sm:gap-4 mx-auto w-full lg:w-[55vw] flex-1 lg:h-[60vh] lg:min-h-[500px] pb-4 lg:pb-0">
             <RevealItem className='h-full w-full col-span-2 row-span-1 lg:col-span-2 lg:row-span-2' index={1} totalItems={6}>
               <MagneticCard 
                 id="card-bakery" 
@@ -1472,16 +1601,16 @@ const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =>
   return (
     <section className="flex flex-col justify-center px-0 lg:px-6 relative overflow-hidden bg-transparent border-t border-black/5 dark:border-white/5 items-center h-full w-full">
       <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_right,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
-      <div className="w-[90dvw] h-[80dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col justify-center">
-          <div className="text-center mb-6 lg:mb-12 shrink-0">
+          <div className="text-center mb-2 lg:mb-12 shrink-0">
             <RevealItem index={0} totalItems={6}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 lg:mb-4 block">
                 The Standard of Trust
               </span>
             </RevealItem>
             <RevealItem index={1} totalItems={6}>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-2 lg:mb-6">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-1 lg:mb-6">
                 UNCOMPROMISING <br/><span className="text-primary">Quality</span>
               </h2>
             </RevealItem>
@@ -1493,13 +1622,14 @@ const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =>
               className="h-full"
               cardWidth="w-[80%]"
               renderItem={(cert, i, active) => (
-                <div className={`p-4 rounded-[1.5rem] bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft transition-all duration-700 relative overflow-hidden h-full w-full flex flex-col items-center text-center justify-center ${active ? 'border-primary/30 shadow-elite' : 'opacity-40'}`}>
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-[40px] rounded-full" />
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center mb-2 shrink-0">
+                <div className={`p-4 rounded-[1.5rem] bg-gradient-to-br from-white via-white to-orange-50/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-primary/10 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-soft transition-all duration-700 relative overflow-hidden h-full w-full flex flex-col items-center text-center justify-center ${active ? 'border-primary/40 shadow-elite ring-1 ring-primary/10' : 'opacity-40'}`}>
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-primary/10 blur-[40px] rounded-full" />
+                  <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-primary/5 blur-[40px] rounded-full" />
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center mb-2 shrink-0 relative z-10">
                     <span className="material-icons text-primary text-lg">{cert.icon}</span>
                   </div>
-                  <h3 className="text-[10px] font-black dark:text-white text-slate-900 uppercase mb-1 tracking-tight leading-none">{cert.name}</h3>
-                  <p className="dark:text-gray-400 text-slate-600 leading-tight font-medium text-[8px] line-clamp-2">{cert.desc}</p>
+                  <h3 className="text-xs font-black dark:text-white text-slate-900 uppercase mb-1 tracking-tight leading-none relative z-10">{cert.name}</h3>
+                  <p className="dark:text-gray-400 text-slate-600 leading-tight font-medium text-[10px] line-clamp-2 relative z-10">{cert.desc}</p>
                 </div>
               )}
             />
@@ -1507,13 +1637,20 @@ const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =>
             {/* Desktop Grid */}
             <div className="hidden md:grid md:grid-cols-3 gap-8 w-full">
               {certifications.map((cert, i) => (
-                <div key={i} className="p-8 rounded-[2.5rem] bg-white dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 shadow-soft hover:shadow-elite hover:border-primary/30 transition-all duration-500 relative overflow-hidden flex flex-col items-center text-center justify-center group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] rounded-full group-hover:bg-primary/10 transition-colors" />
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div key={i} className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white via-white to-orange-50/30 dark:from-zinc-900 dark:via-zinc-900 dark:to-primary/5 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-soft hover:shadow-elite hover:border-primary/40 transition-all duration-500 relative overflow-hidden flex flex-col items-center text-center justify-center group">
+                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 blur-[80px] rounded-full group-hover:bg-primary/10 transition-colors duration-700" />
+                  <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/5 blur-[80px] rounded-full group-hover:bg-primary/10 transition-colors duration-700" />
+                  
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500 relative z-10">
                     <span className="material-icons text-primary text-3xl">{cert.icon}</span>
                   </div>
-                  <h3 className="text-xl font-black dark:text-white text-slate-900 uppercase mb-3 tracking-tight">{cert.name}</h3>
-                  <p className="dark:text-gray-400 text-slate-600 leading-relaxed font-medium text-sm">{cert.desc}</p>
+                  <h3 className="text-2xl font-black dark:text-white text-slate-900 uppercase mb-1 md:mb-3 tracking-tight relative z-10">{cert.name}</h3>
+                  <p className="dark:text-gray-400 text-slate-600 leading-relaxed font-medium text-base relative z-10">{cert.desc}</p>
+                  
+                  {/* Subtle shine effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1500 ease-in-out" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -1528,22 +1665,22 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
   return (
     <section className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative overflow-hidden items-center h-full w-full">
       <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
-      <div className="w-[90dvw] h-[75dvh] lg:w-full lg:h-auto lg:max-w-[67vw] mx-auto flex flex-col justify-center">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-16 items-center justify-center">
-          <div className="lg:hidden order-1 text-center w-full shrink-0">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col items-center justify-center gap-4 lg:gap-6">
+          <div className="text-center w-full shrink-0">
             <RevealItem index={0} totalItems={6}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 block">
                 Our Presence
               </span>
             </RevealItem>
             <RevealItem index={1} totalItems={6}>
-              <h2 className="text-2xl sm:text-4xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">
-                RAYFIELD, <br/><span className="text-primary">Jos</span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight">
+                RAYFIELD, <span className="text-primary">Jos</span>
               </h2>
             </RevealItem>
           </div>
-          <RevealItem index={5} totalItems={6} className="order-2 lg:order-2 w-full shrink-0">
-            <div className="relative aspect-video lg:aspect-square h-[25vh] lg:h-auto rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite">
+          <RevealItem index={5} totalItems={6} className="w-full max-w-3xl shrink-0">
+            <div className="relative aspect-video h-[25vh] lg:h-[40vh] rounded-2xl lg:rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 shadow-elite mx-auto">
               <ParallaxImage src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=2066&auto=format&fit=crop" alt="Jos Landscape" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 lg:p-8">
                 <div className="flex items-center gap-2 lg:gap-4 text-white">
@@ -1553,21 +1690,9 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
               </div>
             </div>
           </RevealItem>
-          <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden flex-1 justify-center">
-            <div className="hidden lg:block">
-              <RevealItem index={0} totalItems={6}>
-                <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">
-                  Our Presence
-                </span>
-              </RevealItem>
-              <RevealItem index={1} totalItems={6}>
-                <h2 className="text-4xl sm:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter mb-6 leading-tight">
-                  RAYFIELD, <br/><span className="text-primary">Jos</span>
-                </h2>
-              </RevealItem>
-            </div>
+          <div className="flex flex-col w-full max-w-xl items-center text-center">
             <RevealItem index={2} totalItems={6}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-snug lg:leading-relaxed mb-4 lg:mb-8 font-medium text-center lg:text-left line-clamp-3 lg:line-clamp-none">
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-snug lg:leading-relaxed mb-2 lg:mb-4 font-medium line-clamp-3 lg:line-clamp-none">
                 Visit our flagship destination at Amanda Plaza. A convergence of all lifestyle divisions in the heart of Plateau State.
               </p>
             </RevealItem>
@@ -1577,7 +1702,7 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
                   <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shrink-0">
                     <span className="material-icons text-primary text-xl lg:text-3xl">location_on</span>
                   </div>
-                  <div>
+                  <div className="text-left">
                     <h4 className="dark:text-white text-slate-900 font-black uppercase tracking-tight text-[10px] lg:text-lg mb-0.5 lg:mb-1">Amanda Plaza</h4>
                     <p className="dark:text-gray-500 text-slate-400 text-[9px] lg:text-sm font-medium">Rayfield, Jos, Plateau State</p>
                   </div>
@@ -1588,7 +1713,7 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
                   <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shrink-0">
                     <span className="material-icons text-primary text-xl lg:text-3xl">schedule</span>
                   </div>
-                  <div>
+                  <div className="text-left">
                     <h4 className="dark:text-white text-slate-900 font-black uppercase tracking-tight text-[10px] lg:text-lg mb-0.5 lg:mb-1">Open Daily</h4>
                     <p className="dark:text-gray-500 text-slate-400 text-[9px] lg:text-sm font-medium">8:00 AM - 11:00 PM</p>
                   </div>
@@ -1976,111 +2101,130 @@ const App: React.FC = () => {
     const container = document.getElementById('main-scroll-container');
     if (!container || currentView !== 'home') return;
 
-    const handleWheel = (e: WheelEvent) => {
-      if (currentSectionIndex === 12) {
-        const isAtTop = container.scrollTop <= 0;
-        if (e.deltaY > 0 || (e.deltaY < 0 && !isAtTop)) {
-          return; // Allow natural scroll within footer
-        }
-      }
-      e.preventDefault();
+    const sectionCount = 13;
+    let isSnapping = false;
+    let scrollTimeout: NodeJS.Timeout;
+    let lastScrollTop = container.scrollTop;
+    let wheelAccumulator = 0;
+    let lastWheelTime = Date.now();
 
-      // Strict cooldown
-      if (isScrolling.current) return;
-
-      // Velocity Gate: Ignore very slow/minimal scrolls
-      if (Math.abs(e.deltaY) < 15) return;
-
-      const now = Date.now();
-      const dt = now - lastWheelTime.current;
-      lastWheelTime.current = now;
-
-      // Reset accumulator if there's a pause in scrolling
-      if (dt > 250) wheelAccumulator.current = 0;
-
-      wheelAccumulator.current += e.deltaY;
-
-      // Accumulator threshold
-      const threshold = 100;
-
-      if (Math.abs(wheelAccumulator.current) >= threshold) {
-        const direction = wheelAccumulator.current > 0 ? 'down' : 'up';
-        
-        setScrollDirection(direction);
-        setCurrentSectionIndex(prev => {
-          let next = direction === 'down' ? prev + 1 : prev - 1;
-          return Math.max(0, Math.min(sectionCount - 1, next));
-        });
-
-        isScrolling.current = true;
-        wheelAccumulator.current = 0;
-        
-        // Strict cooldown
-        setTimeout(() => { isScrolling.current = false; }, 800);
-      }
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      lastTouchY.current = e.touches[0].clientY;
-      touchAccumulator.current = 0;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const currentY = e.touches[0].clientY;
-      const deltaY = lastTouchY.current - currentY;
+    const snapToIndex = (index: number) => {
+      isSnapping = true;
+      setCurrentSectionIndex(index);
       
-      if (currentSectionIndex === 12) {
-        const isAtTop = container.scrollTop <= 0;
-        if (deltaY > 0 || (deltaY < 0 && !isAtTop)) {
-          lastTouchY.current = currentY;
-          return; // Allow natural scroll within footer
+      animate(container.scrollTop, index * window.innerHeight, {
+        duration: 1.2,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (v) => {
+          container.scrollTop = v;
+        },
+        onComplete: () => {
+          setTimeout(() => {
+            isSnapping = false;
+          }, 100);
+        }
+      });
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (currentView !== 'home') return;
+      
+      const windowHeight = window.innerHeight;
+      const rawIndex = container.scrollTop / windowHeight;
+      const currentIndex = Math.round(rawIndex);
+
+      // Allow natural scroll in footer
+      if (currentIndex === 12) {
+        const isAtTop = container.scrollTop <= 11.9 * windowHeight;
+        if (e.deltaY > 0 || (e.deltaY < 0 && !isAtTop)) {
+          return; 
         }
       }
 
-      // Strict cooldown
-      if (isScrolling.current) {
-        lastTouchY.current = currentY;
+      if (isSnapping) {
+        e.preventDefault();
         return;
       }
-
-      // Velocity Gate for touch
-      if (Math.abs(deltaY) < 5) {
-        lastTouchY.current = currentY;
-        return;
-      }
-
-      lastTouchY.current = currentY;
-      touchAccumulator.current += deltaY;
 
       const now = Date.now();
-      const dt = now - lastWheelTime.current;
-      lastWheelTime.current = now;
+      const dt = now - lastWheelTime;
+      lastWheelTime = now;
 
-      // Reset accumulator if there's a pause in scrolling
-      if (dt > 250) touchAccumulator.current = 0;
+      if (dt > 150) {
+        wheelAccumulator = 0;
+      }
 
-      const threshold = 50; // Touch threshold can be slightly lower
+      wheelAccumulator += e.deltaY;
+      const velocity = Math.abs(e.deltaY) / (dt || 1);
 
-      if (Math.abs(touchAccumulator.current) >= threshold) {
-        const direction = touchAccumulator.current > 0 ? 'down' : 'up';
-        setScrollDirection(direction);
-        setCurrentSectionIndex(prev => Math.max(0, Math.min(sectionCount - 1, direction === 'down' ? prev + 1 : prev - 1)));
-        isScrolling.current = true;
-        touchAccumulator.current = 0;
-        setTimeout(() => { isScrolling.current = false; }, 800);
+      // High velocity -> Free scroll (disable snap)
+      if (velocity > 1.5 || Math.abs(e.deltaY) > 70) {
+        wheelAccumulator = 0;
+        return; 
+      }
+
+      // Micro-flicker -> Snap
+      const FLICKER_THRESHOLD = 20; 
+      if (Math.abs(wheelAccumulator) > FLICKER_THRESHOLD) {
+        e.preventDefault();
+        const direction = wheelAccumulator > 0 ? 1 : -1;
+        wheelAccumulator = 0;
+
+        let nextIndex = currentIndex + direction;
+        nextIndex = Math.max(0, Math.min(sectionCount - 1, nextIndex));
+
+        setScrollDirection(direction > 0 ? 'down' : 'up');
+        snapToIndex(nextIndex);
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
+    const handleScroll = () => {
+      if (currentView !== 'home') return;
+
+      const currentScrollTop = container.scrollTop;
+      const direction = currentScrollTop > lastScrollTop ? 'down' : 'up';
+      lastScrollTop = currentScrollTop;
+
+      if (!isSnapping) {
+        const windowHeight = window.innerHeight;
+        const rawIndex = currentScrollTop / windowHeight;
+        const closestIndex = Math.round(rawIndex);
+        
+        setCurrentSectionIndex(prev => {
+          if (prev !== closestIndex) {
+            setScrollDirection(direction);
+            return closestIndex;
+          }
+          return prev;
+        });
+      }
+
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (!isSnapping && currentView === 'home') {
+          const windowHeight = window.innerHeight;
+          const rawIndex = container.scrollTop / windowHeight;
+          const isPerfectlyAligned = Math.abs(rawIndex - Math.round(rawIndex)) < 0.05;
+
+          if (!isPerfectlyAligned) {
+            let targetIndex = direction === 'down' ? Math.ceil(rawIndex - 0.1) : Math.floor(rawIndex + 0.1);
+            targetIndex = Math.max(0, Math.min(sectionCount - 1, targetIndex));
+            setScrollDirection(direction);
+            snapToIndex(targetIndex);
+          }
+        }
+      }, 500);
     };
-  }, [currentView, currentSectionIndex]);
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    container.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      container.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [currentView]);
 
   useEffect(() => {
     if (currentView !== 'home') {
@@ -2152,16 +2296,12 @@ const App: React.FC = () => {
         <div className="bg-white dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
           
           {/* Main Scroll Container */}
-          <div ref={scrollContainerRef} className={`fixed inset-0 w-full h-full bg-transparent ${currentView === 'home' && currentSectionIndex !== 12 ? 'overflow-hidden' : 'overflow-y-auto'} no-scrollbar`} id="main-scroll-container">
+          <div ref={scrollContainerRef} className={`fixed inset-0 w-full h-full bg-transparent overflow-y-auto no-scrollbar`} id="main-scroll-container">
             <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId, currentSectionIndex, setCurrentSectionIndex, scrollDirection, setScrollDirection }}>
             {currentView === 'home' && (
               <>
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} />
-                <motion.div 
-                  className="relative w-full h-full"
-                  animate={{ y: -currentSectionIndex * window.innerHeight }}
-                  transition={{ type: "spring", stiffness: 100, damping: 20, mass: 1 }}
-                >
+                <div className="relative w-full">
                   <SectionWrapper id="hero" index={0} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <Hero isReady={!isLoading} isActive={currentSectionIndex === 0} />
                   </SectionWrapper>
@@ -2198,7 +2338,7 @@ const App: React.FC = () => {
                     <LocationSection />
                   </SectionWrapper>
                   <SectionWrapper id="cta" index={11} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
-                    <FinalCTA />
+                    <FinalCTA setCurrentView={setCurrentView} />
                   </SectionWrapper>
                 </div>
 
@@ -2206,7 +2346,7 @@ const App: React.FC = () => {
                   <Footer setCurrentView={setCurrentView} />
                 </SectionWrapper>
                 <ChatBot />
-              </motion.div>
+              </div>
               </>
             )}
             {(currentView === 'login' || currentView === 'admin') && (
@@ -2217,9 +2357,9 @@ const App: React.FC = () => {
             {currentView === 'bakery' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} localTheme={divisionThemes['bakery']} toggleLocalTheme={() => toggleLocalTheme('bakery')} />
-                  <div className="pt-12">
+                  <div className="pt-16 sm:pt-20">
                     <BakeryApp currentView={bakeryView} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2229,9 +2369,9 @@ const App: React.FC = () => {
             {currentView === 'supermarket' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} localTheme={divisionThemes['supermarket']} toggleLocalTheme={() => toggleLocalTheme('supermarket')} />
-                  <div className="pt-12">
+                  <div className="pt-20 lg:pt-24">
                     <SupermarketApp activePage={supermarketPage} setActivePage={setSupermarketPage} isSmartPasteOpen={isSmartPasteOpen} setIsSmartPasteOpen={setIsSmartPasteOpen} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2241,9 +2381,9 @@ const App: React.FC = () => {
             {currentView === 'dining' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} localTheme={divisionThemes['dining']} toggleLocalTheme={() => toggleLocalTheme('dining')} />
-                  <div className="pt-12">
+                  <div className="pt-16 sm:pt-20">
                     <DiningApp currentView={diningView} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2253,9 +2393,9 @@ const App: React.FC = () => {
             {currentView === 'games' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} localTheme={divisionThemes['games']} toggleLocalTheme={() => toggleLocalTheme('games')} />
-                  <div className="pt-12">
+                  <div className="pt-16 sm:pt-20">
                     <GamesApp currentPage={gamesPage} onNavigate={setGamesPage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2265,9 +2405,9 @@ const App: React.FC = () => {
             {currentView === 'water' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} localTheme={divisionThemes['water']} toggleLocalTheme={() => toggleLocalTheme('water')} />
-                  <div className="pt-12">
+                  <div className="pt-[86px]">
                     <WaterApp currentPage={waterPage} onNavigate={setWaterPage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2277,9 +2417,9 @@ const App: React.FC = () => {
             {currentView === 'lounge' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-12 sm:pt-14">
+                <div className="pt-0 sm:pt-14">
                   <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} localTheme={divisionThemes['lounge']} toggleLocalTheme={() => toggleLocalTheme('lounge')} />
-                  <div className="pt-12">
+                  <div className="pt-16 sm:pt-20">
                     <LoungeApp currentPage={loungePage} onNavigate={setLoungePage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
