@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import DashboardScreen from './components/DashboardScreen';
 import MenuScreen from './components/MenuScreen';
 import AboutScreen from './components/AboutScreen';
@@ -9,7 +10,8 @@ import ReservationsScreen from './components/ReservationsScreen';
 
 export type DiningView = 'dashboard' | 'menu' | 'about' | 'sommelier' | 'delivery' | 'reservations';
 
-export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, setView: (v: DiningView) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentView, setView, localTheme, toggleLocalTheme }) => {
+export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, setView: (v: DiningView) => void }> = ({ navHidden, currentView, setView }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -48,11 +50,9 @@ export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, 
           ))}
         </div>
         <div className="flex-1 flex justify-end shrink-0">
-          {toggleLocalTheme && (
-            <button onClick={toggleLocalTheme} className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
-              <span className="material-icons text-sm">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-            </button>
-          )}
+          <button onClick={toggleTheme} className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+            <span className="material-icons text-sm">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
         </div>
       </div>
     </div>

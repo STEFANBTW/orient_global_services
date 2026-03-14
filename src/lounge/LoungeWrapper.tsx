@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import Visualizer from './components/Visualizer';
 import Concierge from './components/Concierge';
 import Lab from './components/Lab';
@@ -8,7 +9,8 @@ import Menu from './components/Menu';
 
 export type LoungePage = 'home' | 'lab' | 'menu' | 'booking' | 'dashboard';
 
-export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, onNavigate: (p: LoungePage) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentPage, onNavigate, localTheme, toggleLocalTheme }) => {
+export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, onNavigate: (p: LoungePage) => void }> = ({ navHidden, currentPage, onNavigate }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -62,11 +64,9 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 relative z-10 shrink-0">
-          {toggleLocalTheme && (
-            <button onClick={toggleLocalTheme} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/10 text-white/70 hover:text-[#d4af37] hover:border-[#d4af37] hover:bg-white/5 flex items-center justify-center transition-all duration-300">
-              <span className="material-icons text-xs sm:text-sm">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-            </button>
-          )}
+          <button onClick={toggleTheme} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/10 text-white/70 hover:text-[#d4af37] hover:border-[#d4af37] hover:bg-white/5 flex items-center justify-center transition-all duration-300">
+            <span className="material-icons text-xs sm:text-sm">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
           <button 
             onClick={() => onNavigate('booking')}
             className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-sm text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all whitespace-nowrap ${

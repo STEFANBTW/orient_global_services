@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import Home from './components/Home';
 import Process from './components/Process';
 import Impact from './components/Impact';
@@ -7,7 +8,8 @@ import Logistics from './components/Logistics';
 
 export type WaterPage = 'home' | 'process' | 'impact' | 'logistics';
 
-export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, onNavigate: (p: WaterPage) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentPage, onNavigate, localTheme, toggleLocalTheme }) => {
+export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, onNavigate: (p: WaterPage) => void }> = ({ navHidden, currentPage, onNavigate }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -65,11 +67,9 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
           </div>
 
           <div className="flex items-center gap-6">
-            {toggleLocalTheme && (
-              <button onClick={toggleLocalTheme} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-500 text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                <span className="material-icons text-sm font-light">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-              </button>
-            )}
+            <button onClick={toggleTheme} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-500 text-slate-400 hover:text-slate-900 dark:hover:text-white">
+              <span className="material-icons text-sm font-light">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            </button>
             <button className="hidden sm:flex items-center justify-center px-8 py-3 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-all duration-500">
               Order Now
             </button>

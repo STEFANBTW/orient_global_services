@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import { Layout, User, Map, Trophy, Cpu, Glasses, Disc } from 'lucide-react';
 import { AppView } from './types';
 import Landing from './components/Landing';
@@ -316,7 +317,8 @@ const OdysseyLink = ({ isActive, onClick }: { isActive: boolean, onClick: () => 
     );
 };
 
-export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNavigate: (p: AppView) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentPage, onNavigate, localTheme, toggleLocalTheme }) => {
+export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNavigate: (p: AppView) => void }> = ({ navHidden, currentPage, onNavigate }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {

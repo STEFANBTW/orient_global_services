@@ -16,6 +16,7 @@ import Reveal from './src/components/Reveal';
 import { ScrollReveal, RevealItem } from './src/components/ScrollReveal';
 import { SectionWrapper } from './src/components/SectionWrapper';
 import StudioApp from './src/StudioApp';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { ScrollContext } from './src/ScrollContext';
 
 // --- Utility: Magnetic Tilt Hook ---
@@ -104,7 +105,8 @@ export const TextReveal: React.FC<{ text: string; className?: string; delay?: nu
   );
 };
 
-const Preloader: React.FC<{ onComplete: () => void; theme: 'dark' | 'light' }> = ({ onComplete, theme }) => {
+const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+    const { theme } = useTheme();
   return (
     <motion.div
       initial={{ y: 0 }}
@@ -165,8 +167,6 @@ const ParallaxImage: React.FC<{ src: string; alt: string; className?: string }> 
 };
 
 const Navbar: React.FC<{ 
-  theme: 'dark' | 'light', 
-  toggleTheme: () => void, 
   setCurrentView: (v: any) => void, 
   scrolled: boolean, 
   navHidden: boolean,
@@ -174,7 +174,8 @@ const Navbar: React.FC<{
   isReady?: boolean,
   skipAnimation?: boolean,
   setCurrentSectionIndex?: (i: number) => void
-}> = ({ theme, toggleTheme, setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, skipAnimation = false, setCurrentSectionIndex }) => {
+}> = ({ setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, skipAnimation = false, setCurrentSectionIndex }) => {
+    const { theme, toggleTheme } = useTheme();
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -2048,11 +2049,7 @@ const App: React.FC = () => {
   const lastWheelTime = React.useRef(0);
   const touchAccumulator = React.useRef(0);
   const lastTouchY = React.useRef(0);
-  const [globalTheme, setGlobalTheme] = useState<'dark' | 'light'>('light');
-  const [divisionThemes, setDivisionThemes] = useState<Record<string, 'dark' | 'light'>>({
-    home: 'light', login: 'dark', admin: 'dark', bakery: 'dark',
-    supermarket: 'dark', dining: 'dark', games: 'dark', water: 'dark', lounge: 'dark'
-  });
+  const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'home' | 'login' | 'admin' | 'bakery' | 'supermarket' | 'dining' | 'games' | 'water' | 'lounge' | 'about'>('home');
   const [bakeryView, setBakeryView] = useState<'home' | 'architect' | 'wholesale' | 'story'>('home');
@@ -2243,28 +2240,6 @@ const App: React.FC = () => {
     }
   }, [currentSectionIndex, scrollDirection, currentView]);
 
-  useEffect(() => {
-    const activeTheme = divisionThemes[currentView] || 'dark';
-    document.documentElement.classList.toggle('dark', activeTheme === 'dark');
-  }, [currentView, divisionThemes]);
-
-  const toggleGlobalTheme = () => {
-    const newTheme = globalTheme === 'dark' ? 'light' : 'dark';
-    setGlobalTheme(newTheme);
-    setDivisionThemes(prev => {
-      const updated = { ...prev };
-      Object.keys(updated).forEach(key => updated[key] = newTheme);
-      return updated;
-    });
-  };
-
-  const toggleLocalTheme = (division: string) => {
-    setDivisionThemes(prev => ({
-      ...prev,
-      [division]: prev[division] === 'dark' ? 'light' : 'dark'
-    }));
-  };
-
   const handleLogin = () => {
     setIsAuthenticated(true);
     setCurrentView('admin');
@@ -2288,9 +2263,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
+    <ThemeProvider>
+      <>
         <AnimatePresence>
-            {isLoading && <Preloader onComplete={() => setIsLoading(false)} theme={globalTheme} />}
+            {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
         </AnimatePresence>
         {/* Outer wrapper requires h-[100dvh] and overflow-hidden for the snap container to work securely */}
         <div className="bg-white dark:bg-background-dark transition-colors duration-700 dark:text-white text-slate-900 selection:bg-primary selection:text-black relative z-10 h-[100dvh] overflow-hidden">
@@ -2300,7 +2276,7 @@ const App: React.FC = () => {
             <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId, currentSectionIndex, setCurrentSectionIndex, scrollDirection, setScrollDirection }}>
             {currentView === 'home' && (
               <>
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} />
                 <div className="relative w-full">
                   <SectionWrapper id="hero" index={0} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <Hero isReady={!isLoading} isActive={currentSectionIndex === 0} />
@@ -2356,9 +2332,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'bakery' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} localTheme={divisionThemes['bakery']} toggleLocalTheme={() => toggleLocalTheme('bakery')} />
+                  <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} />
                   <div className="pt-0 lg:pt-20">
                     <BakeryApp currentView={bakeryView} />
                   </div>
@@ -2368,9 +2344,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'supermarket' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} localTheme={divisionThemes['supermarket']} toggleLocalTheme={() => toggleLocalTheme('supermarket')} />
+                  <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} />
                   <div className="pt-0 lg:pt-20">
                     <SupermarketApp activePage={supermarketPage} setActivePage={setSupermarketPage} isSmartPasteOpen={isSmartPasteOpen} setIsSmartPasteOpen={setIsSmartPasteOpen} />
                   </div>
@@ -2380,9 +2356,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'dining' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} localTheme={divisionThemes['dining']} toggleLocalTheme={() => toggleLocalTheme('dining')} />
+                  <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} />
                   <div className="pt-0 lg:pt-20">
                     <DiningApp currentView={diningView} />
                   </div>
@@ -2392,9 +2368,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'games' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} localTheme={divisionThemes['games']} toggleLocalTheme={() => toggleLocalTheme('games')} />
+                  <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} />
                   <div className="pt-0 lg:pt-20">
                     <GamesApp currentPage={gamesPage} onNavigate={setGamesPage} />
                   </div>
@@ -2404,9 +2380,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'water' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} localTheme={divisionThemes['water']} toggleLocalTheme={() => toggleLocalTheme('water')} />
+                  <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} />
                   <div className="pt-0 lg:pt-20">
                     <WaterApp currentPage={waterPage} onNavigate={setWaterPage} />
                   </div>
@@ -2416,9 +2392,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'lounge' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div>
-                  <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} localTheme={divisionThemes['lounge']} toggleLocalTheme={() => toggleLocalTheme('lounge')} />
+                  <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} />
                   <div className="pt-0 lg:pt-20">
                     <LoungeApp currentPage={loungePage} onNavigate={setLoungePage} />
                   </div>
@@ -2428,7 +2404,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'about' && (
               <div className="relative">
-                <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
                 <div className="pt-12 sm:pt-14">
                   <About setCurrentView={setCurrentView} />
                   <Footer setCurrentView={setCurrentView} />
@@ -2439,6 +2415,7 @@ const App: React.FC = () => {
           </div>
         </div>
     </>
+    </ThemeProvider>
   );
 };
 

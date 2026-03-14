@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
@@ -24,7 +25,8 @@ import Register from './pages/Register';
 
 export type SupermarketPage = 'Home' | 'Wholesale' | 'Deals' | 'Dashboard' | 'Cart' | 'Produce' | 'Aisles' | 'PreviouslyBought' | 'BOGOF' | 'Under5' | 'Bundles' | 'Bakery' | 'Receipts' | 'Favorites' | 'Loyalty' | 'Settings' | 'Login' | 'Register';
 
-export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: SupermarketPage, setActivePage: (p: SupermarketPage) => void, setIsSmartPasteOpen: (o: boolean) => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, activePage, setActivePage, setIsSmartPasteOpen, localTheme, toggleLocalTheme }) => {
+export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: SupermarketPage, setActivePage: (p: SupermarketPage) => void, setIsSmartPasteOpen: (o: boolean) => void }> = ({ navHidden, activePage, setActivePage, setIsSmartPasteOpen }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -97,11 +99,9 @@ export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: Supermar
           </div>
           
           <div className="flex items-center ml-2 sm:ml-4 gap-2 sm:gap-4 shrink-0">
-             {toggleLocalTheme && (
-               <button onClick={toggleLocalTheme} className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors text-slate-300">
-                 <span className="material-icons text-sm">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-               </button>
-             )}
+             <button onClick={toggleTheme} className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors text-slate-300">
+               <span className="material-icons text-sm">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+             </button>
              <button 
                onClick={() => setActivePage('Cart')} 
                className={`text-[10px] sm:text-xs font-bold flex items-center gap-1 transition-colors ${activePage === 'Cart' ? 'text-[#ff6a00]' : 'text-slate-300 hover:text-white'}`}

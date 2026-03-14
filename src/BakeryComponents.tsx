@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useTheme } from './context/ThemeContext';
 import { ScrollContext } from './ScrollContext';
 import { Architect } from './BakeryArchitect';
 import { Wholesale } from './BakeryWholesale';
@@ -322,7 +323,8 @@ export const BakeryHome: React.FC = () => {
   );
 };
 
-export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setView: (v: 'home' | 'architect' | 'wholesale' | 'story') => void, localTheme?: 'dark'|'light', toggleLocalTheme?: () => void }> = ({ navHidden, currentView, setView, localTheme, toggleLocalTheme }) => {
+export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setView: (v: 'home' | 'architect' | 'wholesale' | 'story') => void }> = ({ navHidden, currentView, setView }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -365,11 +367,9 @@ export const BakeryNav: React.FC<{ navHidden: boolean, currentView: string, setV
             ))}
           </div>
           <div className="flex-1 flex justify-end shrink-0">
-            {toggleLocalTheme && (
-              <button onClick={toggleLocalTheme} className="p-1.5 rounded-full bg-stone-200 dark:bg-white/10 hover:bg-stone-300 dark:hover:bg-white/20 transition-colors text-stone-600 dark:text-stone-300">
-                <span className="material-icons text-sm">{localTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-              </button>
-            )}
+            <button onClick={toggleTheme} className="p-1.5 rounded-full bg-stone-200 dark:bg-white/10 hover:bg-stone-300 dark:hover:bg-white/20 transition-colors text-stone-600 dark:text-stone-300">
+              <span className="material-icons text-sm">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            </button>
           </div>
         </div>
       </div>
