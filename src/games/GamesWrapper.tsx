@@ -328,7 +328,11 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
 
   return (
     <nav 
-      className={`sticky w-full z-50 top-0 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 h-16 sm:h-20 pointer-events-auto shadow-lg`}
+      className={`fixed bottom-0 left-0 w-full z-30 lg:top-0 lg:bottom-auto bg-[#050505]/95 backdrop-blur-md border-t border-white/10 h-13 sm:h-16 pointer-events-auto shadow-[0_-10px_30px_rgba(0,0,0,0.8)] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        (navHidden || !isMobile)
+          ? 'translate-y-0 opacity-100 blur-0' 
+          : 'translate-y-[-90%] opacity-0 blur-2xl pointer-events-none'
+      }`}
     >
       {/* Cyberpunk Top Accent Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
@@ -347,7 +351,7 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
         </div>
 
         {/* Navigation Links */}
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar px-2 flex-1 justify-center">
+        <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [mask-image:linear-gradient(to_right,black_90%,transparent_100%)] px-2 flex-1 justify-center text-sm">
             <GlitchLink isActive={currentPage === AppView.LANDING} onClick={() => onNavigate(AppView.LANDING)} />
             <div className="w-[1px] h-4 bg-white/10 mx-1 shrink-0" />
             <ScanLink isActive={currentPage === AppView.PROFILE} onClick={() => onNavigate(AppView.PROFILE)} />

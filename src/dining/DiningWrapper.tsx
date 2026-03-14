@@ -21,11 +21,15 @@ export const DiningNav: React.FC<{ navHidden: boolean, currentView: DiningView, 
 
   return (
     <div
-      className={`sticky w-full z-40 top-0 bg-black/90 backdrop-blur-md border-b border-white/10 h-16 sm:h-20 px-2 sm:px-4 shadow-lg`}
+      className={`fixed bottom-0 left-0 w-full z-30 lg:top-0 lg:bottom-auto bg-black/90 backdrop-blur-md border-t border-white/10 h-13 sm:h-16 px-2 sm:px-4 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        (navHidden || !isMobile)
+          ? 'translate-y-0 opacity-100 blur-0' 
+          : 'translate-y-[-90%] opacity-0 blur-2xl pointer-events-none'
+      }`}
     >
       <div className="max-w-7xl mx-auto h-full flex items-center justify-between gap-2">
         <div className="flex-1 hidden sm:block"></div>
-        <div className="flex items-center justify-start sm:justify-center space-x-3 sm:space-x-6 overflow-x-auto no-scrollbar px-2 flex-grow">
+        <div className="flex items-center justify-start sm:justify-center space-x-3 sm:space-x-6 overflow-x-auto [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [mask-image:linear-gradient(to_right,black_90%,transparent_100%)] px-2 flex-grow text-[10px] sm:text-[11px]">
           {(['menu', 'sommelier', 'reservations', 'delivery', 'about', 'dashboard'] as DiningView[]).map((view) => (
             <button
               key={view}

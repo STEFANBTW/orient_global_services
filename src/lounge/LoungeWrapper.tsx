@@ -26,7 +26,11 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
 
   return (
     <nav 
-      className={`sticky top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-white/5 h-16 sm:h-20 px-2 sm:px-8 transition-all duration-300 shadow-lg`}
+      className={`fixed bottom-0 left-0 w-full z-30 lg:top-0 lg:bottom-auto bg-black/90 backdrop-blur-md border-t border-white/5 h-13 sm:h-16 px-2 sm:px-8 transition-all duration-700 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        (navHidden || !isMobile)
+          ? 'translate-y-0 opacity-100 blur-0' 
+          : 'translate-y-[-90%] opacity-0 blur-2xl pointer-events-none'
+      }`}
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 group relative z-10 cursor-pointer shrink-0" onClick={() => onNavigate('home')}>
@@ -37,7 +41,7 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
           </div>
         </div>
         
-        <div className="flex items-center gap-2 sm:gap-8 flex-nowrap justify-center px-1 scale-90 sm:scale-100">
+        <div className="flex items-center gap-2 sm:gap-8 overflow-x-auto [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [mask-image:linear-gradient(to_right,black_90%,transparent_100%)] px-1 scale-90 sm:scale-100 flex-grow justify-center text-xs">
           {navItems.map((item) => (
             <button
               key={item.id}

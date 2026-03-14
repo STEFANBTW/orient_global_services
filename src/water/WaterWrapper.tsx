@@ -19,7 +19,11 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
 
   return (
     <nav 
-      className={`sticky top-0 w-full z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-lg h-[86px]`}
+      className={`fixed bottom-0 left-0 w-full z-30 lg:top-0 lg:bottom-auto bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-white/20 dark:border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.2)] h-[69px] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        (navHidden || !isMobile)
+          ? 'translate-y-0 opacity-100 blur-0' 
+          : 'translate-y-[-90%] opacity-0 blur-2xl pointer-events-none'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 h-full">
         <div className="flex items-center justify-between h-full">
@@ -32,7 +36,7 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
             </span>
           </div>
           
-          <div className="flex items-center space-x-8 sm:space-x-12 overflow-x-auto no-scrollbar px-4 flex-grow justify-center">
+          <div className="flex items-center space-x-8 sm:space-x-12 overflow-x-auto [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-stone-400/20 [&::-webkit-scrollbar-thumb]:rounded-full [mask-image:linear-gradient(to_right,black_90%,transparent_100%)] px-4 flex-grow justify-center text-base">
             {[
               { id: 'home', label: 'Home' },
               { id: 'process', label: 'Process' },

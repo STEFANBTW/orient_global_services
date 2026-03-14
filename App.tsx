@@ -904,15 +904,15 @@ const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
             </RevealItem>
             <RevealItem index={4} totalItems={5} className="w-full">
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3 lg:gap-4 w-full">
-                <div className="flex-none p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center min-w-[140px]">
+              <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+                <div className="w-full p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
                   <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-2 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Cold Chain
                   </h4>
                   <p className="dark:text-gray-500 text-slate-500 text-[9px] lg:text-xs font-medium pl-3.5">24/7 Temperature Monitoring</p>
                 </div>
-                <div className="flex-none p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center min-w-[140px]">
+                <div className="w-full p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
                   <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-2 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Sourcing
@@ -1066,9 +1066,9 @@ const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
               <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
             </RevealItem>
             <RevealItem index={4} totalItems={5} className="w-full">
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3 lg:gap-4 w-full">
+              <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
                 {['Reverse Osmosis', 'UV Sterilization', 'Ozone Treatment', 'Mineral Balancing'].map(step => (
-                  <div key={step} className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft justify-start min-w-[140px] lg:min-w-0">
+                  <div key={step} className="w-full flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft justify-start">
                     <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] shrink-0" />
                     <span className="dark:text-white text-slate-900 text-[9px] lg:text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{step}</span>
                   </div>
@@ -1103,14 +1103,14 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
               <div className="w-12 h-1 bg-primary mb-8 rounded-full"></div>
               <h4 className="text-4xl font-black dark:text-white text-slate-900 mb-6 uppercase tracking-tighter leading-none">The <br/><span className="text-primary">Nightscape</span> Lounge</h4>
               <p className="dark:text-gray-400 text-slate-500 text-base leading-relaxed mb-8 font-medium">Where mixology meets mystery. Our lounge offers a secluded environment perfect for high-stakes meetings or unwinding after a long week. Featuring Zobo-infused cocktails and a curated cigar selection.</p>
-              <ul className="space-y-4 mb-8">
+              <div className="flex flex-col gap-3 lg:gap-4 mb-8 w-full">
                 {['Premium Bottle Service', 'Private Booths', 'Live Jazz Weekends'].map(li => (
-                  <li key={li} className="flex items-center dark:text-gray-300 text-slate-600 font-bold text-sm tracking-wide uppercase">
-                    <span className="w-2 h-2 bg-primary rounded-full mr-4 shadow-[0_0_20px_rgba(242,158,13,0.5)]"></span>
-                    {li}
-                  </li>
+                  <div key={li} className="flex items-center justify-start py-2 px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                    <span className="w-2 h-2 bg-primary rounded-full shadow-[0_0_20px_rgba(242,158,13,0.5)] shrink-0"></span>
+                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs whitespace-nowrap">{li}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
               <button onClick={() => { setCurrentView('lounge'); document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' }); }} className="group flex items-center gap-4 dark:text-white text-slate-900 border-b-2 border-primary pb-2 hover:text-primary transition-all uppercase text-xs font-black tracking-[0.3em] font-heading">
                 <span>Explore Menu</span>
                 <span className="material-icons text-lg group-hover:translate-x-2 transition-transform">arrow_forward</span>
@@ -1153,10 +1153,10 @@ const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
             <RevealItem index={2} totalItems={7}>
               <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">The lounge is acoustically treated to provide perfect sound isolation. Our resident DJs curate soundscapes that evolve through the night, paired with our signature mixology program.</p>
             </RevealItem>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
               {['Void Acoustics Sound System', 'Custom Lighting Rig', 'VIP Concierge'].map((item, i) => (
-                <RevealItem key={item} index={3 + i} totalItems={7} className={i === 0 ? "w-full" : "flex-none"}>
-                  <div className={`flex items-center justify-start p-3 lg:p-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 ${i === 0 ? "w-full" : "min-w-[140px] lg:min-w-0"}`}>
+                <RevealItem key={item} index={3 + i} totalItems={7} className="w-full">
+                  <div className="flex items-center justify-start p-3 lg:p-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">graphic_eq</span>
                     <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{item}</span>
                   </div>
@@ -1281,10 +1281,10 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
             <RevealItem index={2} totalItems={7}>
               <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
             </RevealItem>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
               {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map((spec, i) => (
-                <RevealItem key={spec} index={3 + i} totalItems={7} className={i === 0 ? "w-full" : "flex-none"}>
-                  <div className={`flex items-center justify-start py-1.5 px-3 lg:py-2 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 ${i === 0 ? "w-full" : "min-w-[140px] lg:min-w-0"}`}>
+                <RevealItem key={spec} index={3 + i} totalItems={7} className="w-full">
+                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-2 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">bolt</span>
                     <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{spec}</span>
                   </div>
@@ -2350,16 +2350,16 @@ const App: React.FC = () => {
               </>
             )}
             {(currentView === 'login' || currentView === 'admin') && (
-              <div className="pt-16 sm:pt-20 min-h-screen">
+              <div className="pt-0 lg:pt-20 min-h-screen">
                 <StudioApp onCancel={() => setCurrentView('home')} />
               </div>
             )}
             {currentView === 'bakery' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} localTheme={divisionThemes['bakery']} toggleLocalTheme={() => toggleLocalTheme('bakery')} />
-                  <div className="pt-16 sm:pt-20">
+                  <div className="pt-0 lg:pt-20">
                     <BakeryApp currentView={bakeryView} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2369,9 +2369,9 @@ const App: React.FC = () => {
             {currentView === 'supermarket' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} localTheme={divisionThemes['supermarket']} toggleLocalTheme={() => toggleLocalTheme('supermarket')} />
-                  <div className="pt-20 lg:pt-24">
+                  <div className="pt-0 lg:pt-20">
                     <SupermarketApp activePage={supermarketPage} setActivePage={setSupermarketPage} isSmartPasteOpen={isSmartPasteOpen} setIsSmartPasteOpen={setIsSmartPasteOpen} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2381,9 +2381,9 @@ const App: React.FC = () => {
             {currentView === 'dining' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} localTheme={divisionThemes['dining']} toggleLocalTheme={() => toggleLocalTheme('dining')} />
-                  <div className="pt-16 sm:pt-20">
+                  <div className="pt-0 lg:pt-20">
                     <DiningApp currentView={diningView} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2393,9 +2393,9 @@ const App: React.FC = () => {
             {currentView === 'games' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} localTheme={divisionThemes['games']} toggleLocalTheme={() => toggleLocalTheme('games')} />
-                  <div className="pt-16 sm:pt-20">
+                  <div className="pt-0 lg:pt-20">
                     <GamesApp currentPage={gamesPage} onNavigate={setGamesPage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2405,9 +2405,9 @@ const App: React.FC = () => {
             {currentView === 'water' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} localTheme={divisionThemes['water']} toggleLocalTheme={() => toggleLocalTheme('water')} />
-                  <div className="pt-[86px]">
+                  <div className="pt-0 lg:pt-20">
                     <WaterApp currentPage={waterPage} onNavigate={setWaterPage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />
@@ -2417,9 +2417,9 @@ const App: React.FC = () => {
             {currentView === 'lounge' && (
               <div className="relative">
                 <Navbar theme={globalTheme} toggleTheme={toggleGlobalTheme} setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
-                <div className="pt-0 sm:pt-14">
+                <div>
                   <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} localTheme={divisionThemes['lounge']} toggleLocalTheme={() => toggleLocalTheme('lounge')} />
-                  <div className="pt-16 sm:pt-20">
+                  <div className="pt-0 lg:pt-20">
                     <LoungeApp currentPage={loungePage} onNavigate={setLoungePage} />
                   </div>
                   <Footer setCurrentView={setCurrentView} />

@@ -44,7 +44,11 @@ export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: Supermar
 
   return (
     <nav 
-      className={`bg-slate-900/90 backdrop-blur-md text-white border-b border-white/10 sticky top-0 w-full z-40 shadow-lg h-[76px] lg:h-20`}
+      className={`fixed bottom-0 left-0 w-full z-30 lg:top-0 lg:bottom-auto bg-slate-900/90 backdrop-blur-md text-white border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.3)] h-[60px] lg:h-16 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        (navHidden || !isMobile)
+          ? 'translate-y-0 opacity-100 blur-0' 
+          : 'translate-y-[-90%] opacity-0 blur-2xl pointer-events-none'
+      }`}
     >
       <div className="max-w-[1600px] mx-auto px-2 sm:px-4 h-full">
         <div className="flex items-center justify-between h-full">
@@ -58,7 +62,7 @@ export const SupermarketNav: React.FC<{ navHidden: boolean, activePage: Supermar
              </motion.span>
              <span className="font-bold tracking-tight text-sm sm:text-base">Orient<span className="font-normal text-slate-400">Suite</span></span>
           </div>
-          <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar px-2">
+          <div className="flex items-center gap-1 flex-1 overflow-x-auto [&::-webkit-scrollbar]:h-0.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [mask-image:linear-gradient(to_right,black_90%,transparent_100%)] px-2 text-[clamp(0.85rem,1.1vw,1rem)]">
             {pages.map((page) => (
               <button
                 key={page.id}
