@@ -29,7 +29,7 @@ export const WaterNav: React.FC<{ navHidden: boolean, currentPage: WaterPage, on
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 h-full">
         <div className="flex items-center justify-between h-full">
-          <div className="flex items-center gap-4 cursor-pointer group shrink-0" onClick={() => onNavigate('home')}>
+          <div className="hidden sm:flex items-center gap-4 cursor-pointer group shrink-0" onClick={() => onNavigate('home')}>
             <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-500">
               <span className="material-icons text-blue-500 text-xl font-light">water_drop</span>
             </div>

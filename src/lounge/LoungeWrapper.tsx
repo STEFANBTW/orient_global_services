@@ -35,7 +35,7 @@ export const LoungeNav: React.FC<{ navHidden: boolean, currentPage: LoungePage, 
       }`}
     >
       <div className="max-w-7xl mx-auto h-full relative flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 sm:gap-3 group relative z-10 cursor-pointer shrink-0" onClick={() => onNavigate('home')}>
+        <div className="hidden sm:flex items-center gap-2 sm:gap-3 group relative z-10 cursor-pointer shrink-0" onClick={() => onNavigate('home')}>
           <span className="material-icons text-[#d4af37] text-xl sm:text-2xl group-hover:rotate-180 transition-transform duration-700">liquor</span>
           <div className="flex flex-col">
             <span className="font-serif italic font-semibold text-xs sm:text-sm leading-none text-white tracking-wide">Orient</span>

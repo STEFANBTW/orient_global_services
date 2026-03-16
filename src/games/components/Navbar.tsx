@@ -11,7 +11,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         <nav className="sticky top-20 w-full z-[50] bg-[#050505]/90 backdrop-blur-md border-b border-white/10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-20">
-                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => onNavigate(Page.LANDING)}>
+                    <div className="hidden sm:flex items-center gap-2 cursor-pointer group" onClick={() => onNavigate(Page.LANDING)}>
                         <span className="material-icons text-[#ff6a00] text-3xl group-hover:animate-pulse transition-all">sports_esports</span>
                         <span className="font-tech font-bold text-2xl tracking-widest text-white group-hover:text-gray-200 transition-colors">ORIENT<span className="text-[#ff6a00]">GAMES</span></span>
                     </div>

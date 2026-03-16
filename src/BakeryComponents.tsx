@@ -107,7 +107,7 @@ export const BakeryHome: React.FC = () => {
   return (
     <div ref={ref} className="bg-slate-50 dark:bg-background-dark overflow-x-hidden pt-0">
       {/* Cinematic Hero Section */}
-      <header className="relative w-full h-[85vh] overflow-hidden flex items-center justify-center bg-background-dark">
+      <header id="hero-bakery" className="relative w-full h-[85vh] overflow-hidden flex items-center justify-center bg-background-dark">
         <div className="absolute inset-0 z-0">
           <motion.img style={{ y: yParallax }} alt="Baker dusting flour on dough in slow motion" className="w-full h-full object-cover opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6SG_V94G3jAOPP14HMgaAc2y6fE1y54l-T9C_E8xI1lee7tUiF_qJrO8kXpExWPXmuyi8aqoigi93IDoakFe7g9F7qjyPpIDuf5zvLq-T9HQck89ar2rvOtJOWbapiebrimVajx_o7xAq0UfknDkv0sjaGWYqUmPn7GOzTdfsSZqTNiJPRV2YdCQ87VO5yahIhmngNShbsfl5AgO4_w5JoN1TT8lQmCaRisnMIBX9YW4YySXwnKh-Uwv2ioOH1i39jT1EUr1eVcIX" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent"></div>

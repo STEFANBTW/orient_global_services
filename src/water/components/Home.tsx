@@ -63,7 +63,7 @@ const Home: React.FC<{ onNavigate?: (p: any) => void }> = ({ onNavigate }) => {
   return (
     <div className="w-full font-sans">
       {/* Hero Section */}
-      <header className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <header id="hero-water" className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950">
         
         {/* Soft Radial Gradients for Atmosphere */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

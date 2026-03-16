@@ -7,14 +7,6 @@ const MenuScreen: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    useEffect(() => {
         const fetchData = async () => {
             try {
                 const data = await cmsApi.getDivisionContent('dining');
@@ -71,7 +63,7 @@ const MenuScreen: React.FC = () => {
             {/* Top Navigation Bar - REMOVED redundant local nav */}
 
             {/* Hero Section */}
-            <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-center">
+            <header id="hero-dining" className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-center">
                 <div className="absolute inset-0 z-0">
                     <img 
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj-5jTIIwvDzpn59TGKVz1ybCYZAF0xuVrP2oIjamHpr3OtP-vOZhlbqM9qysSSHaLgcZgRm4v_ezPrpORTbBX8rpReetkE0n2JwX_M4gcmSz38nqMatTjG3QATZtWzPF8IlnzCzQBs2v5wFRSNGKDUI-a3ODCRAOtGbilEvbcqeRmJZpC9EnukONMGWtwLYFkuPF7qqmnunJuNMX-C4NOITVlAfCPHFIqVhv2qk_Nx9DaXK2ViXTBsSundO1moLrL7chnFSKGSBV8" 

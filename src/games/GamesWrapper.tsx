@@ -342,7 +342,7 @@ export const GamesNav: React.FC<{ navHidden: boolean, currentPage: AppView, onNa
       <div className="max-w-[1600px] mx-auto h-full flex items-center justify-between px-4">
         
         {/* Logo Area */}
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate(AppView.LANDING)}>
+        <div className="hidden sm:flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate(AppView.LANDING)}>
             <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center rounded-sm group-hover:bg-primary/20 transition-colors relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30"></div>
                 <span className="font-mono font-bold text-primary text-sm relative z-10">OG</span>

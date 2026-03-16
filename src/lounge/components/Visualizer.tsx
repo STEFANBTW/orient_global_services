@@ -6,7 +6,7 @@ const Visualizer: React.FC<{ onNavigate?: (p: any) => void }> = ({ onNavigate })
     <div className="bg-[#050505] text-white font-inter overflow-x-hidden selection:bg-primary-gold selection:text-black">
       
       {/* SECTION: HERO */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+      <section id="hero-lounge" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             className="w-full h-full object-cover animate-[hero-pan_30s_infinite_alternate]" 

@@ -147,23 +147,14 @@ html {
   /* scroll-behavior: smooth; */
 }
 
-/* Custom Scrollbar for a more refined look */
+/* Hide scrollbars globally */
 ::-webkit-scrollbar {
-  width: 6px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(242, 158, 13, 0.2);
-  border-radius: 10px;
-  transition: background 0.3s;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(242, 158, 13, 0.5);
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 /* Soften the scroll behavior */

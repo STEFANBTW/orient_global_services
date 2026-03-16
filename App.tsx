@@ -17,6 +17,7 @@ import { ScrollReveal, RevealItem } from './src/components/ScrollReveal';
 import { SectionWrapper } from './src/components/SectionWrapper';
 import StudioApp from './src/StudioApp';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { useHeroInView } from './src/hooks/useHeroInView';
 import { ScrollContext } from './src/ScrollContext';
 
 // --- Utility: Magnetic Tilt Hook ---
@@ -173,13 +174,93 @@ const Navbar: React.FC<{
   isSubpage?: boolean,
   isReady?: boolean,
   skipAnimation?: boolean,
-  setCurrentSectionIndex?: (i: number) => void
-}> = ({ setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, skipAnimation = false, setCurrentSectionIndex }) => {
+  setCurrentSectionIndex?: (i: number) => void,
+  currentSectionIndex?: number,
+  pageType?: 'hero' | 'market' | 'games' | 'other',
+  heroId?: string
+}> = ({ setCurrentView, scrolled, navHidden, isSubpage = false, isReady = true, skipAnimation = false, setCurrentSectionIndex, currentSectionIndex = 0, pageType = 'other', heroId = 'hero' }) => {
     const { theme, toggleTheme } = useTheme();
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    
+    // Use the hook to detect if hero is in view
+    const isHeroInView = useHeroInView(heroId);
+
+    const isHomepage = !isSubpage;
+    const isOnHero = isHeroInView || (isHomepage && currentSectionIndex === 0);
+    
+    // isTransparent determines if the text should be white (for hero sections)
+    const isTransparent = isHomepage ? isOnHero : (pageType === 'hero' ? !scrolled : !scrolled);
+
+    const getNavBackgroundStyle = () => {
+        if (isMobile) return '';
+        
+        // Games page special case: intensified glass morphism
+        if (pageType === 'games') {
+            return 'backdrop-blur-[40px] bg-black/40 dark:bg-black/40 border-b border-white/10';
+        }
+        
+        // Market page special case: solid background
+        if (pageType === 'market') {
+            return 'bg-white dark:bg-background-dark border-b border-black/5 dark:border-white/10';
+        }
+        
+        if (isHomepage) {
+            if (!isOnHero) {
+                // Solid background when scrolled past hero
+                return 'bg-white dark:bg-background-dark border-b border-black/5 dark:border-white/10 shadow-sm';
+            }
+            if (activeTab) {
+                // Hover state on homepage hero: transparent and blurry
+                return 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border-b border-white/5 dark:border-white/5';
+            }
+            // Initial state on homepage hero: completely transparent
+            return 'bg-transparent border-b border-transparent';
+        }
+
+        // Subpages logic (Dining, Water, etc.)
+        if (pageType === 'hero') {
+            if (!scrolled) {
+                // Transparent + Blurry at scroll 0
+                return 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border-b border-white/5 dark:border-white/5';
+            }
+            // Solid background as soon as page progresses
+            return 'bg-white dark:bg-background-dark border-b border-black/5 dark:border-white/10 shadow-sm';
+        }
+        
+        // Default (other pages)
+        return 'bg-white dark:bg-background-dark border-b border-black/5 dark:border-white/10 shadow-sm';
+    };
+
+    const blendClass = '';
+    const textClass = theme === 'dark' ? 'text-white' : 'text-slate-900';
+
+    const getMegaMenuBackgroundStyle = () => {
+        if (pageType === 'games') {
+            return 'backdrop-blur-[40px] bg-black/40 dark:bg-black/40';
+        }
+        if (pageType === 'market') {
+            return 'bg-white dark:bg-background-dark';
+        }
+        
+        if (isHomepage) {
+            if (isOnHero) {
+                return 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px]';
+            }
+            return 'bg-white dark:bg-background-dark';
+        }
+
+        if (pageType === 'hero') {
+            if (!scrolled) {
+                return 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px]';
+            }
+            return 'bg-white dark:bg-background-dark';
+        }
+
+        return 'bg-white dark:bg-background-dark';
+    };
 
     const handleMouseEnter = (tab: string) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -314,15 +395,13 @@ const Navbar: React.FC<{
             { name: 'Contact', id: 'footer' }
           ],
           highlights: [
-            { title: 'Corporate HQ', detail: 'Amanda Plaza, Rayfield' },
+            { title: 'Corporate HQ', detail: 'Amada Plaza, Rayfield' },
             { title: 'Careers', detail: 'Join the Orient Global team' },
             { title: 'Impact', detail: 'Community development initiatives' }
           ]
         }
       }
     ];
-
-    const isHomepage = !isSubpage;
 
     return (
       <motion.div 
@@ -335,10 +414,9 @@ const Navbar: React.FC<{
         className={`fixed z-[1000] ${isMobile ? 'bottom-6 left-0 right-0 mx-auto w-[95%]' : 'top-0 left-0 w-full'}`}
       >
         {/* Main Nav Container */}
-        <nav className={`relative transition-all duration-300 flex items-center 
-          ${isMobile 
-            ? `rounded-[40px] h-14 sm:h-16 px-4 sm:px-6 ${isHomepage ? (scrolled ? 'shadow-soft bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[10px] border border-black/5 dark:border-white/10' : 'bg-transparent border-transparent') : 'shadow-soft bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border border-black/5 dark:border-white/10'}` 
-            : `h-12 sm:h-14 px-6 sm:px-12 transition-all duration-300 ${isHomepage ? (activeTab || scrolled ? 'bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-black/5 dark:border-white/10' : 'bg-transparent border-transparent') : 'shadow-soft bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px] border-b border-black/5 dark:border-white/10'}`
+        <nav className={`relative transition-all duration-300 flex items-center isolation-auto ${getNavBackgroundStyle()} ${isMobile 
+            ? `rounded-[40px] h-14 sm:h-16 px-4 sm:px-6` 
+            : `h-12 sm:h-14 px-6 sm:px-12 transition-all duration-300`
           }`}
         >
           <div className={`${isMobile ? 'w-full flex items-center justify-between' : 'mx-auto w-full flex items-center justify-between'}`}>
@@ -352,7 +430,7 @@ const Navbar: React.FC<{
                 <span className="material-icons text-white text-lg sm:text-xl">diamond</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-heading font-black text-xs sm:text-sm tracking-tighter dark:text-white text-slate-900 leading-none uppercase">Orient</span>
+                <span className={`font-heading font-black text-xs sm:text-sm tracking-tighter leading-none uppercase ${textClass}`}>Orient</span>
                 <span className="text-[8px] sm:text-[9px] font-bold tracking-[0.3em] text-primary uppercase leading-none mt-0.5">Global</span>
               </div>
             </motion.div>
@@ -374,7 +452,7 @@ const Navbar: React.FC<{
                       setCurrentView(link.view as any);
                       document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`relative z-10 px-2 sm:px-3 h-full flex items-center justify-center transition-all duration-300 text-[clamp(0.75rem,1.1vw,0.9rem)] font-bold uppercase tracking-widest hover:text-primary dark:hover:text-white ${scrolled ? 'dark:text-gray-300 text-slate-600' : 'dark:text-white text-slate-900'}`}
+                    className={`relative z-10 px-2 sm:px-3 h-full flex items-center justify-center transition-all duration-300 text-[clamp(0.75rem,1.1vw,0.9rem)] font-bold uppercase tracking-widest hover:text-primary dark:hover:text-white ${textClass}`}
                   >
                     <div className="flex flex-col items-center group">
                       <motion.span whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 17 }} className="relative py-1 block">
@@ -398,13 +476,14 @@ const Navbar: React.FC<{
               initial={skipAnimation ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
               animate={isReady ? { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' } : { clipPath: 'polygon(0% -50%, 100% -150%, 100% -150%, 0% -50%)' }}
               transition={{ duration: 1.5, delay: skipAnimation ? 0 : (isReady ? 2.9 + ((navLinks.length + 1) * 0.1) : 0), ease: [0.76, 0, 0.24, 1] }}
-              className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}>
-              <button onClick={toggleTheme} className="p-1.5 sm:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 dark:text-white text-slate-900">
+              className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'pl-4 border-l border-white/10' : ''}`}
+            >
+              <button onClick={toggleTheme} className={`p-1.5 sm:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 ${isTransparent ? 'text-white' : 'dark:text-white text-slate-900'}`}>
                 <span className="material-icons text-sm sm:text-base">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
               </button>
               <button 
                 onClick={() => setCurrentView('login')}
-                className="p-1.5 sm:p-2 rounded-full bg-primary/10 dark:bg-white/5 text-primary dark:text-white hover:bg-primary hover:text-white transition-all duration-300"
+                className={`p-1.5 sm:p-2 rounded-full transition-all duration-300 ${isTransparent ? 'bg-white/10 text-white hover:bg-white hover:text-black' : 'bg-primary/10 dark:bg-white/5 text-primary dark:text-white hover:bg-primary hover:text-white'}`}
                 title="Portal"
               >
                 <span className="material-icons text-sm sm:text-base">person</span>
@@ -431,7 +510,7 @@ const Navbar: React.FC<{
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               onMouseEnter={() => handleMouseEnter(activeTab)}
               onMouseLeave={() => handleMouseLeave()}
-              className={`absolute w-full border border-black/5 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.4)] z-[-1] overflow-hidden top-full left-0 rounded-none border-t-0 p-12 ${isHomepage ? 'bg-white dark:bg-background-dark' : 'bg-white/10 dark:bg-zinc-900/10 backdrop-blur-[10px]'}`}
+              className={`absolute w-full border border-black/5 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.4)] z-[-1] overflow-hidden top-full left-0 rounded-none border-t-0 p-12 ${getMegaMenuBackgroundStyle()}`}
             >
               <div className="lg:max-w-[67vw] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
                 {(() => {
@@ -444,7 +523,7 @@ const Navbar: React.FC<{
                       <div className="space-y-8">
                         <motion.h4 
                           initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-                          className="text-primary font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3"
+                          className={`font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3 ${theme === 'dark' ? 'text-white' : 'text-primary'}`}
                         >
                           Strategic Navigation
                         </motion.h4>
@@ -456,7 +535,7 @@ const Navbar: React.FC<{
                             >
                               <button 
                                 onClick={() => handleNavigation(activeLink.view, item.id)} 
-                                className="text-xl sm:text-2xl font-black dark:text-white/90 text-slate-800 hover:text-primary dark:hover:text-white transition-all hover:translate-x-3 flex items-center gap-4 group uppercase tracking-tight"
+                                className={`text-xl sm:text-2xl font-black transition-all hover:translate-x-3 flex items-center gap-4 group uppercase tracking-tight ${theme === 'dark' ? 'text-white/90' : 'text-slate-800 hover:text-primary'}`}
                               >
                                 <span className="w-3 h-3 rounded-full bg-primary/20 group-hover:bg-primary transition-all duration-500 scale-75 group-hover:scale-100" />
                                 {item.name}
@@ -465,12 +544,12 @@ const Navbar: React.FC<{
                           ))}
                         </ul>
                       </div>
-
+ 
                       {/* Pane 2: Division Highlights */}
                       <div className="space-y-8 lg:border-l lg:border-white/10 lg:pl-16">
                         <motion.h4 
                           initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-                          className="text-primary font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3"
+                          className={`font-black text-xs uppercase tracking-[0.4em] border-b border-primary/20 pb-3 ${theme === 'dark' ? 'text-white' : 'text-primary'}`}
                         >
                           Division Insights
                         </motion.h4>
@@ -481,10 +560,14 @@ const Navbar: React.FC<{
                               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}
                               className="group cursor-default"
                             >
-                              <h5 className="text-sm font-black dark:text-white text-slate-900 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">
+                              <h5 
+                                className={`text-sm font-black uppercase tracking-widest mb-1 transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900 group-hover:text-primary'}`}
+                              >
                                 {highlight.title}
                               </h5>
-                              <p className="text-xs dark:text-gray-500 text-slate-400 font-medium leading-relaxed">
+                              <p 
+                                className={`text-xs font-medium leading-relaxed ${theme === 'dark' ? 'text-gray-400' : 'text-slate-500'}`}
+                              >
                                 {highlight.detail}
                               </p>
                             </motion.div>
@@ -687,8 +770,8 @@ const Hero: React.FC<{ isReady: boolean; isActive?: boolean }> = ({ isReady, isA
 
 const FinalCTA: React.FC<{ isActive?: boolean; setCurrentView?: (v: any) => void }> = ({ isActive = false, setCurrentView }) => {
   const quickLinks = [
-    { name: 'Golden Crust (Bakery)', id: 'bakery-deep' },
-    { name: 'Orient Market', id: 'market-deep' },
+    { name: 'Bakery', id: 'bakery-deep' },
+    { name: 'Supermarket', id: 'market-deep' },
     { name: 'The Lounge', id: 'lounge-deep' },
     { name: 'Dining', id: 'dining-deep' },
     { name: 'Water', id: 'water-deep' },
@@ -707,7 +790,7 @@ const FinalCTA: React.FC<{ isActive?: boolean; setCurrentView?: (v: any) => void
       <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="content-container relative z-10 text-center w-full flex flex-col justify-center h-full">
           <RevealItem index={0} totalItems={5}>
-            <div className="flex flex-col items-center mb-4 md:mb-12 group">
+            <div className="flex flex-col items-center mb-4 md:mb-8 lg:mb-4 group">
               <span className="text-primary font-black uppercase tracking-[0.6em] text-[12px] relative">
                 The New Standard of Excellence
               </span>
@@ -715,14 +798,14 @@ const FinalCTA: React.FC<{ isActive?: boolean; setCurrentView?: (v: any) => void
           </RevealItem>
 
           <RevealItem index={1} totalItems={5}>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-2 md:mb-6 leading-[0.8] uppercase tracking-tighter">
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black dark:text-white text-slate-900 mb-2 md:mb-4 lg:mb-2 leading-[0.8] uppercase tracking-tighter">
               ORIENT<br />
               <span className="text-primary">Global</span>
             </h2>
           </RevealItem>
 
           <RevealItem index={2} totalItems={5}>
-            <p className="text-sm md:text-base dark:text-gray-400 text-slate-500 max-w-xl mx-auto leading-relaxed font-medium mb-8">
+            <p className="text-sm md:text-base dark:text-gray-400 text-slate-500 max-w-xl mx-auto leading-relaxed font-medium mb-4 lg:mb-12">
               Ready to experience the future of Jos? Join us at the flagship destination where every detail is engineered for perfection.
             </p>
           </RevealItem>
@@ -753,11 +836,6 @@ const FinalCTA: React.FC<{ isActive?: boolean; setCurrentView?: (v: any) => void
                     <div className="h-[1px] w-0 bg-primary group-hover:w-full transition-all duration-500" />
                   </button>
                 ))}
-              </div>
-              <div className="mt-12 flex justify-center items-center gap-6 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
-                <span className="text-[9px] font-black uppercase tracking-[0.5em] dark:text-white text-slate-900">Corporate Headquarters</span>
-                <div className="w-1 h-1 rounded-full bg-primary" />
-                <span className="text-[9px] font-black uppercase tracking-[0.5em] dark:text-white text-slate-900">Lifestyle Division</span>
               </div>
             </div>
           </RevealItem>
@@ -797,7 +875,7 @@ const BakeryShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="bakery-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
@@ -813,7 +891,7 @@ const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
             </div>
           </RevealItem>
           <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.5em] uppercase text-sm mb-4 block">Artisanal Process</span>
               </RevealItem>
@@ -822,14 +900,14 @@ const BakeryDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               </RevealItem>
             </div>
             <RevealItem index={3} totalItems={7}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-6 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our master bakers utilize a 48-hour cold fermentation process, allowing complex flavors to develop naturally. We source our grains from sustainable farms, ensuring every loaf meets the Orient Global standard of purity.</p>
             </RevealItem>
-            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
               {['Natural Sourdough Starters', 'Stone-Ground Flour', 'No Artificial Additives'].map((item, i) => (
                 <RevealItem key={item} index={4 + i} totalItems={7} className="w-full">
-                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-2 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-3 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">science</span>
-                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{item}</span>
+                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-[10px] whitespace-nowrap">{item}</span>
                   </div>
                 </RevealItem>
               ))}
@@ -877,7 +955,7 @@ const MarketShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCur
 const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="market-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={5}>
@@ -893,7 +971,7 @@ const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
             </div>
           </RevealItem>
           <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={5}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Supply Chain</span>
               </RevealItem>
@@ -902,19 +980,19 @@ const MarketDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               </RevealItem>
             </div>
             <RevealItem index={3} totalItems={5}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-6 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our global procurement network ensures that the finest products from around the world are available in Jos. From organic dairy to international spices, we maintain a strict cold chain and quality control protocol.</p>
             </RevealItem>
             <RevealItem index={4} totalItems={5} className="w-full">
-              <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
-                <div className="w-full p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
-                  <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-2 flex items-center gap-2">
+              <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
+                <div className="w-full p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
+                  <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-0.5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Cold Chain
                   </h4>
                   <p className="dark:text-gray-500 text-slate-500 text-[9px] lg:text-xs font-medium pl-3.5">24/7 Temperature Monitoring</p>
                 </div>
-                <div className="w-full p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
-                  <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-2 flex items-center gap-2">
+                <div className="w-full p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft text-left flex flex-col justify-center">
+                  <h4 className="dark:text-white text-slate-900 font-black uppercase text-[9px] lg:text-xs tracking-widest mb-0.5 lg:mb-0.5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Sourcing
                   </h4>
@@ -965,7 +1043,7 @@ const RestaurantShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="dining-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
@@ -981,7 +1059,7 @@ const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
             </div>
           </RevealItem>
           <div className="order-3 lg:order-2 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Chef's Philosophy</span>
               </RevealItem>
@@ -990,14 +1068,14 @@ const DiningDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               </RevealItem>
             </div>
             <RevealItem index={3} totalItems={7}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-6 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Our culinary team explores the intersection of traditional Plateau ingredients and modern gastronomic techniques. We believe in "Root-to-Table" dining, where every ingredient tells a story of the land.</p>
             </RevealItem>
-            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
               {['Locally Sourced Produce', 'Artisanal Plating', 'Curated Wine Pairings'].map((item, i) => (
                 <RevealItem key={item} index={4 + i} totalItems={7} className="w-full">
-                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-2 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-3 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">restaurant_menu</span>
-                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{item}</span>
+                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-[10px] whitespace-nowrap">{item}</span>
                   </div>
                 </RevealItem>
               ))}
@@ -1039,7 +1117,7 @@ const WaterShowcase: React.FC<{ setCurrentView: (v: any) => void }> = ({ setCurr
 const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="water-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={5}>
@@ -1055,7 +1133,7 @@ const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
             </div>
           </RevealItem>
           <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={5}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Technical Purity</span>
               </RevealItem>
@@ -1064,10 +1142,10 @@ const WaterDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
               </RevealItem>
             </div>
             <RevealItem index={3} totalItems={5}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-6 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">Beyond standard purification, Orient Water undergoes a rigorous 7-step process including Reverse Osmosis, UV Sterilization, and Ozone Treatment. We test every batch in our on-site laboratory to ensure absolute safety.</p>
             </RevealItem>
             <RevealItem index={4} totalItems={5} className="w-full">
-              <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+              <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
                 {['Reverse Osmosis', 'UV Sterilization', 'Ozone Treatment', 'Mineral Balancing'].map(step => (
                   <div key={step} className="w-full flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft justify-start">
                     <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] shrink-0" />
@@ -1103,10 +1181,10 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
             <Reveal animation="slide-from-right">
               <div className="w-12 h-1 bg-primary mb-8 rounded-full"></div>
               <h4 className="text-4xl font-black dark:text-white text-slate-900 mb-6 uppercase tracking-tighter leading-none">The <br/><span className="text-primary">Nightscape</span> Lounge</h4>
-              <p className="dark:text-gray-400 text-slate-500 text-base leading-relaxed mb-8 font-medium">Where mixology meets mystery. Our lounge offers a secluded environment perfect for high-stakes meetings or unwinding after a long week. Featuring Zobo-infused cocktails and a curated cigar selection.</p>
+              <p className="dark:text-gray-400 text-slate-500 text-base leading-relaxed mb-8 lg:mb-12 font-medium">Where mixology meets mystery. Our lounge offers a secluded environment perfect for high-stakes meetings or unwinding after a long week. Featuring Zobo-infused cocktails and a curated cigar selection.</p>
               <div className="flex flex-col gap-3 lg:gap-4 mb-8 w-full">
                 {['Premium Bottle Service', 'Private Booths', 'Live Jazz Weekends'].map(li => (
-                  <div key={li} className="flex items-center justify-start py-2 px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                  <div key={li} className="flex items-center justify-start py-2 px-4 lg:py-4 lg:px-6 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="w-2 h-2 bg-primary rounded-full shadow-[0_0_20px_rgba(242,158,13,0.5)] shrink-0"></span>
                     <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[10px] lg:text-xs whitespace-nowrap">{li}</span>
                   </div>
@@ -1127,7 +1205,7 @@ const CuratedExperiences: React.FC<{ setCurrentView: (v: any) => void }> = ({ se
 const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="lounge-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
@@ -1143,7 +1221,7 @@ const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
             </div>
           </RevealItem>
           <div className="order-3 lg:order-1 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Atmosphere</span>
               </RevealItem>
@@ -1152,14 +1230,14 @@ const LoungeDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) 
               </RevealItem>
             </div>
             <RevealItem index={2} totalItems={7}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">The lounge is acoustically treated to provide perfect sound isolation. Our resident DJs curate soundscapes that evolve through the night, paired with our signature mixology program.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">The lounge is acoustically treated to provide perfect sound isolation. Our resident DJs curate soundscapes that evolve through the night, paired with our signature mixology program.</p>
             </RevealItem>
-            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
               {['Void Acoustics Sound System', 'Custom Lighting Rig', 'VIP Concierge'].map((item, i) => (
                 <RevealItem key={item} index={3 + i} totalItems={7} className="w-full">
-                  <div className="flex items-center justify-start p-3 lg:p-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                  <div className="flex items-center justify-start p-3 lg:p-1 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">graphic_eq</span>
-                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{item}</span>
+                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-[10px] whitespace-nowrap">{item}</span>
                   </div>
                 </RevealItem>
               ))}
@@ -1260,7 +1338,7 @@ const VerticalFerrisCarousel: React.FC = () => {
 const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => {
   return (
     <div id="games-deep" className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative items-center h-full w-full">
-      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh]">
+      <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center -translate-y-[2vh] lg:translate-y-0">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-16 items-center justify-center">
           <div className="lg:hidden order-1 text-center w-full shrink-0 mb-1">
             <RevealItem index={0} totalItems={7}>
@@ -1271,7 +1349,7 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
             </RevealItem>
           </div>
           <div className="order-2 lg:order-1 flex flex-col w-full overflow-hidden ">
-            <div className="hidden lg:block mb-6 lg:mb-8">
+            <div className="hidden lg:block mb-6 lg:mb-2">
               <RevealItem index={0} totalItems={7}>
                 <span className="text-primary font-black tracking-[0.3em] uppercase text-sm mb-4 block">Games Ecosystem</span>
               </RevealItem>
@@ -1280,14 +1358,14 @@ const GamesDeepDive: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =
               </RevealItem>
             </div>
             <RevealItem index={2} totalItems={7}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 leading-[19px] mb-1 lg:mb-2 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 mt-5 lg:mt-1 leading-[19px] mb-1 lg:mb-6 font-normal text-center lg:text-left line-clamp-3 lg:line-clamp-none">We've built a dedicated fiber-optic network to ensure sub-10ms latency for competitive play. Our hardware is refreshed quarterly, featuring the latest RTX GPUs and high-fidelity VR peripherals.</p>
             </RevealItem>
-            <div className="flex flex-col items-start gap-3 lg:gap-4 w-full">
+            <div className="flex flex-col items-start gap-3 lg:gap-1 w-full">
               {['Fiber-Optic Backbone', 'RTX 40-Series GPUs', '240Hz Displays'].map((spec, i) => (
                 <RevealItem key={spec} index={3 + i} totalItems={7} className="w-full">
-                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-2 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
+                  <div className="flex items-center justify-start py-1.5 px-3 lg:py-3 lg:px-4 rounded-xl lg:rounded-2xl dark:bg-white/5 bg-white border dark:border-white/10 border-black/5 shadow-soft gap-3 w-full">
                     <span className="material-icons text-primary text-lg lg:text-xl shrink-0">bolt</span>
-                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-xs whitespace-nowrap">{spec}</span>
+                    <span className="dark:text-white text-slate-900 font-bold uppercase tracking-widest text-[9px] lg:text-[10px] whitespace-nowrap">{spec}</span>
                   </div>
                 </RevealItem>
               ))}
@@ -1354,8 +1432,8 @@ const VoicesOfJos: React.FC<{ isActive?: boolean }> = ({ isActive = false }) => 
       <div className="w-[90dvw] lg:max-w-[75vw] xl:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col justify-center">
           <RevealItem index={0} totalItems={4} className="shrink-0">
-            <div className="text-center mb-2 md:mb-12">
-              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-1 md:mb-4 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
+            <div className="text-center mb-2 md:mb-4 lg:mb-2">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black dark:text-white text-slate-900 mb-1 md:mb-2 uppercase tracking-tighter leading-none">VOICES OF <br className="md:hidden"/><span className="text-primary">Jos</span></h2>
               <p className="dark:text-gray-400 text-slate-500 font-bold text-[10px] sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em]">Real stories from our community.</p>
             </div>
           </RevealItem>
@@ -1507,12 +1585,12 @@ const ServicesGrid: React.FC<{ setCurrentView: (v: any) => void; isActive?: bool
             <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 sm:mb-4 block mt-4 lg:mt-0">
               Bespoke Services
             </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mx-auto mb-1 sm:mb-8">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter max-w-3xl mx-auto mb-1 sm:mb-4 lg:mb-2">
               FOR THOSE WHO DEMAND <span className="dark:text-white/40 text-slate-300 italic">EXCELLENCE.</span>
             </h2>
           </RevealItem>
 
-          <div className="grid grid-cols-2 grid-rows-4 lg:grid-cols-4 lg:grid-rows-3 gap-1 sm:gap-4 mx-auto w-full lg:w-[55vw] flex-1 lg:h-[60vh] lg:min-h-[500px] pb-4 lg:pb-0">
+          <div className="grid grid-cols-2 grid-rows-4 lg:grid-cols-4 lg:grid-rows-3 gap-1 sm:gap-4 mx-auto w-full lg:w-[55vw] lg:flex-none lg:h-[60vh] pb-4 lg:pb-0">
             <RevealItem className='h-full w-full col-span-2 row-span-1 lg:col-span-2 lg:row-span-2' index={1} totalItems={6}>
               <MagneticCard 
                 id="card-bakery" 
@@ -1604,14 +1682,14 @@ const TrustSection: React.FC<{ isActive?: boolean }> = ({ isActive = false }) =>
       <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_right,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
       <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
         <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col justify-center">
-          <div className="text-center mb-2 lg:mb-12 shrink-0">
+          <div className="text-center mb-2 lg:mb-6 shrink-0">
             <RevealItem index={0} totalItems={6}>
-              <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 lg:mb-4 block">
+              <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 lg:mb-2 block">
                 The Standard of Trust
               </span>
             </RevealItem>
             <RevealItem index={1} totalItems={6}>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-1 lg:mb-6">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black dark:text-white text-slate-900 uppercase tracking-tighter leading-tight mb-1 lg:mb-3">
                 UNCOMPROMISING <br/><span className="text-primary">Quality</span>
               </h2>
             </RevealItem>
@@ -1667,7 +1745,7 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
     <section className="flex flex-col justify-center px-0 lg:px-6 bg-transparent border-t border-black/5 dark:border-white/5 relative overflow-hidden items-center h-full w-full">
       <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,rgba(242,158,13,0.02),transparent_50%)] pointer-events-none" />
       <div className="w-[90dvw] lg:max-w-[67vw] mx-auto flex flex-col justify-center">
-        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col items-center justify-center gap-4 lg:gap-6">
+        <ScrollReveal isActive={isActive} className="w-full h-full flex flex-col items-center justify-center gap-4 lg:gap-3">
           <div className="text-center w-full shrink-0">
             <RevealItem index={0} totalItems={6}>
               <span className="text-primary font-black tracking-[0.3em] uppercase text-[10px] md:text-sm mb-1 block">
@@ -1691,26 +1769,26 @@ const LocationSection: React.FC<{ isActive?: boolean }> = ({ isActive = false })
               </div>
             </div>
           </RevealItem>
-          <div className="flex flex-col w-full max-w-xl items-center text-center">
+          <div className="flex flex-col w-full max-w-2xl items-center text-center">
             <RevealItem index={2} totalItems={6}>
-              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-snug lg:leading-relaxed mb-2 lg:mb-4 font-medium line-clamp-3 lg:line-clamp-none">
-                Visit our flagship destination at Amanda Plaza. A convergence of all lifestyle divisions in the heart of Plateau State.
+              <p className="text-xs md:text-sm lg:text-base dark:text-gray-400 text-slate-600 leading-snug lg:leading-relaxed mb-2 lg:mb-2 font-medium line-clamp-3 lg:line-clamp-none">
+                Visit our flagship destination at Amada Plaza. A convergence of all lifestyle divisions in the heart of Plateau State.
               </p>
             </RevealItem>
-            <div className="flex flex-col gap-2 lg:gap-4 w-full">
+            <div className="flex flex-col lg:flex-row gap-2 lg:gap-4 w-full">
               <RevealItem index={3} totalItems={6} className="w-full">
-                <div className="flex items-center gap-3 lg:gap-6 p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
+                <div className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shrink-0">
                     <span className="material-icons text-primary text-xl lg:text-3xl">location_on</span>
                   </div>
                   <div className="text-left">
-                    <h4 className="dark:text-white text-slate-900 font-black uppercase tracking-tight text-[10px] lg:text-lg mb-0.5 lg:mb-1">Amanda Plaza</h4>
+                    <h4 className="dark:text-white text-slate-900 font-black uppercase tracking-tight text-[10px] lg:text-lg mb-0.5 lg:mb-1">Amada Plaza</h4>
                     <p className="dark:text-gray-500 text-slate-400 text-[9px] lg:text-sm font-medium">Rayfield, Jos, Plateau State</p>
                   </div>
                 </div>
               </RevealItem>
               <RevealItem index={4} totalItems={6} className="w-full">
-                <div className="flex items-center gap-3 lg:gap-6 p-3 lg:p-6 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
+                <div className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-3xl dark:bg-white/5 bg-white border border-black/5 dark:border-white/10 shadow-soft group hover:border-primary/30 transition-all duration-500">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shrink-0">
                     <span className="material-icons text-primary text-xl lg:text-3xl">schedule</span>
                   </div>
@@ -2276,7 +2354,7 @@ const App: React.FC = () => {
             <ScrollContext.Provider value={{ scrollContainerRef, activeSectionId, setActiveSectionId, currentSectionIndex, setCurrentSectionIndex, scrollDirection, setScrollDirection }}>
             {currentView === 'home' && (
               <>
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isReady={!isLoading} skipAnimation={false} setCurrentSectionIndex={setCurrentSectionIndex} currentSectionIndex={currentSectionIndex} pageType="hero" heroId="hero" />
                 <div className="relative w-full">
                   <SectionWrapper id="hero" index={0} className="relative w-full h-[100dvh] flex flex-col justify-center cinematic-section">
                     <Hero isReady={!isLoading} isActive={currentSectionIndex === 0} />
@@ -2332,7 +2410,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'bakery' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="hero" heroId="hero-bakery" />
                 <div>
                   <BakeryNav navHidden={navHidden} currentView={bakeryView} setView={setBakeryView} />
                   <div className="pt-0 lg:pt-20">
@@ -2344,7 +2422,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'supermarket' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="market" />
                 <div>
                   <SupermarketNav navHidden={navHidden} activePage={supermarketPage} setActivePage={setSupermarketPage} setIsSmartPasteOpen={setIsSmartPasteOpen} />
                   <div className="pt-0 lg:pt-20">
@@ -2356,7 +2434,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'dining' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="hero" heroId="hero-dining" />
                 <div>
                   <DiningNav navHidden={navHidden} currentView={diningView} setView={setDiningView} />
                   <div className="pt-0 lg:pt-20">
@@ -2368,7 +2446,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'games' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="games" />
                 <div>
                   <GamesNav navHidden={navHidden} currentPage={gamesPage} onNavigate={setGamesPage} />
                   <div className="pt-0 lg:pt-20">
@@ -2380,7 +2458,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'water' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="hero" heroId="hero-water" />
                 <div>
                   <WaterNav navHidden={navHidden} currentPage={waterPage} onNavigate={setWaterPage} />
                   <div className="pt-0 lg:pt-20">
@@ -2392,7 +2470,7 @@ const App: React.FC = () => {
             )}
             {currentView === 'lounge' && (
               <div className="relative">
-                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation />
+                <Navbar setCurrentView={setCurrentView} scrolled={scrolled} navHidden={navHidden} isSubpage skipAnimation pageType="hero" heroId="hero-lounge" />
                 <div>
                   <LoungeNav navHidden={navHidden} currentPage={loungePage} onNavigate={setLoungePage} />
                   <div className="pt-0 lg:pt-20">
